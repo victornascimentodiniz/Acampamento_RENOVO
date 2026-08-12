@@ -3,11 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu primeiro site</title>
+
+    <title>Doações</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f5f5f5, #e8e8e8);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 450px;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        .logo {
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 20px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #f0f0f0;
+            border-radius: 50%;
+
+            font-size: 42px;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #222;
+        }
+
+        .subtitulo {
+            color: #777;
+            margin-bottom: 35px;
+            font-size: 16px;
+        }
+
+        .opcoes {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .botao {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+
+            font-size: 18px;
+            font-weight: bold;
+
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .igreja {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .igreja:hover {
+            background: #3e9142;
+            transform: translateY(-2px);
+        }
+
+        .administrador {
+            background: #333;
+            color: white;
+        }
+
+        .administrador:hover {
+            background: #222;
+            transform: translateY(-2px);
+        }
+
+        .icone {
+            margin-right: 8px;
+        }
+
+        .rodape {
+            margin-top: 30px;
+            font-size: 13px;
+            color: #999;
+        }
+
+        @media (max-width: 500px) {
+
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Meu primeiro site 🚀</h1>
-    <p>Site publicado com sucesso!</p>
+
+    <div class="container">
+
+        <div class="logo">
+            ❤️
+        </div>
+
+        <h1>DOAÇÕES</h1>
+
+        <p class="subtitulo">
+            Selecione uma opção para continuar
+        </p>
+
+        <div class="opcoes">
+
+            <button class="botao igreja" onclick="entrarIgreja()">
+                <span class="icone">⛪</span>
+                Igreja
+            </button>
+
+            <button class="botao administrador" onclick="entrarAdministrador()">
+                <span class="icone">👤</span>
+                Administrador
+            </button>
+
+        </div>
+
+        <div class="rodape">
+            Sistema de Doações
+        </div>
+
+    </div>
+
+    <script>
+
+        function entrarIgreja() {
+            alert("Área da Igreja");
+        }
+
+        function entrarAdministrador() {
+            alert("Área do Administrador");
+        }
+
+    </script>
+
 </body>
 </html>
