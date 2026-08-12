@@ -5,1080 +5,331 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Doações - Igreja</title>
+    <title>Campanha de Doações</title>
 
+    <link rel="stylesheet" href="style.css">
 
-    <style>
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-
-        body {
-
-            background: #f4f4f4;
-
-            min-height: 100vh;
-        }
-
-
-        /* CABEÇALHO */
-
-        header {
-
-            background: #4CAF50;
-
-            color: white;
-
-            padding: 20px;
-
-            display: flex;
-
-            justify-content: space-between;
-
-            align-items: center;
-        }
-
-
-        header h1 {
-
-            font-size: 24px;
-        }
-
-
-        .voltar {
-
-            background: white;
-
-            color: #333;
-
-            border: none;
-
-            padding: 10px 18px;
-
-            border-radius: 8px;
-
-            cursor: pointer;
-
-            font-weight: bold;
-        }
-
-
-        /* CONTAINER */
-
-        .container {
-
-            width: 90%;
-
-            max-width: 900px;
-
-            margin: 40px auto;
-        }
-
-
-        /* TITULO */
-
-        .titulo {
-
-            text-align: center;
-
-            margin-bottom: 30px;
-        }
-
-
-        .titulo h2 {
-
-            font-size: 28px;
-
-            color: #333;
-
-            margin-bottom: 8px;
-        }
-
-
-        .titulo p {
-
-            color: #777;
-        }
-
-
-        /* LISTA */
-
-        #listaProdutos {
-
-            display: flex;
-
-            flex-direction: column;
-
-            gap: 20px;
-        }
-
-
-        /* PRODUTO */
-
-        .produto {
-
-            background: white;
-
-            border-radius: 15px;
-
-            padding: 25px;
-
-            box-shadow:
-                0 5px 20px rgba(0, 0, 0, 0.10);
-
-            border-left: 6px solid #4CAF50;
-        }
-
-
-        .produto.completo {
-
-            border-left: 6px solid #28a745;
-
-            background: #e9f8ec;
-        }
-
-
-        .produto h3 {
-
-            font-size: 22px;
-
-            color: #333;
-
-            margin-bottom: 15px;
-        }
-
-
-        /* INFORMAÇÕES */
-
-        .informacoes {
-
-            display: grid;
-
-            grid-template-columns:
-                repeat(3, 1fr);
-
-            gap: 10px;
-
-            margin-bottom: 20px;
-        }
-
-
-        .informacao {
-
-            background: #f5f5f5;
-
-            padding: 15px;
-
-            border-radius: 10px;
-
-            text-align: center;
-        }
-
-
-        .informacao span {
-
-            display: block;
-
-            font-size: 13px;
-
-            color: #777;
-
-            margin-bottom: 5px;
-        }
-
-
-        .informacao strong {
-
-            font-size: 20px;
-
-            color: #333;
-        }
-
-
-        /* BARRA DE PROGRESSO */
-
-        .barra-container {
-
-            width: 100%;
-
-            height: 18px;
-
-            background: #ddd;
-
-            border-radius: 20px;
-
-            overflow: hidden;
-
-            margin-bottom: 20px;
-        }
-
-
-        .barra {
-
-            height: 100%;
-
-            background: #4CAF50;
-
-            transition: width 0.4s;
-
-            width: 0%;
-        }
-
-
-        .barra.completa {
-
-            background: #28a745;
-        }
-
-
-        /* FORMULÁRIO */
-
-        .formulario {
-
-            display: grid;
-
-            grid-template-columns:
-                1fr 180px;
-
-            gap: 12px;
-        }
-
-
-        .formulario input {
-
-            width: 100%;
-
-            padding: 14px;
-
-            border: 1px solid #ccc;
-
-            border-radius: 8px;
-
-            font-size: 16px;
-        }
-
-
-        .botao-doar {
-
-            grid-column: 1 / -1;
-
-            padding: 15px;
-
-            border: none;
-
-            border-radius: 8px;
-
-            background: #4CAF50;
-
-            color: white;
-
-            font-size: 17px;
-
-            font-weight: bold;
-
-            cursor: pointer;
-        }
-
-
-        .botao-doar:hover {
-
-            background: #3d9141;
-        }
-
-
-        .botao-doar:disabled {
-
-            background: #999;
-
-            cursor: not-allowed;
-        }
-
-
-        /* COMPLETO */
-
-        .mensagem-completo {
-
-            background: #28a745;
-
-            color: white;
-
-            padding: 15px;
-
-            border-radius: 8px;
-
-            text-align: center;
-
-            font-weight: bold;
-        }
-
-
-        /* SEM PRODUTOS */
-
-        .sem-produtos {
-
-            background: white;
-
-            padding: 40px;
-
-            border-radius: 15px;
-
-            text-align: center;
-
-            color: #999;
-        }
-
-
-        /* DOAÇÕES */
-
-        .doadores {
-
-            margin-top: 20px;
-
-            border-top: 1px solid #ddd;
-
-            padding-top: 15px;
-        }
-
-
-        .doadores h4 {
-
-            margin-bottom: 10px;
-
-            color: #555;
-        }
-
-
-        .doador {
-
-            padding: 8px 0;
-
-            color: #666;
-
-            border-bottom: 1px solid #eee;
-        }
-
-
-        /* CELULAR */
-
-        @media (max-width: 600px) {
-
-            header {
-
-                flex-direction: column;
-
-                gap: 15px;
-
-                text-align: center;
-            }
-
-
-            .informacoes {
-
-                grid-template-columns: 1fr;
-            }
-
-
-            .formulario {
-
-                grid-template-columns: 1fr;
-            }
-
-
-            .produto {
-
-                padding: 20px;
-            }
-
-        }
-
-    </style>
+    <script src="app.js" defer></script>
 
 </head>
 
-
-<body>
-
+<body data-page="user">
 
     <!-- CABEÇALHO -->
 
-    <header>
+    <header class="topbar public-topbar">
 
-        <h1>
-            ⛪ Área da Igreja
-        </h1>
+        <div class="topbar-container">
 
+            <a href="igreja.html" class="brand">
 
-        <button
-            class="voltar"
-            onclick="voltar()"
-        >
-            Voltar
-        </button>
+                <div class="brand-mini-icon">
+                    ❤
+                </div>
+
+                <div>
+
+                    <strong>
+                        Campanha Solidária
+                    </strong>
+
+                    <span>
+                        Faça parte desta ação
+                    </span>
+
+                </div>
+
+            </a>
+
+            <a
+                href="index.html"
+                class="secondary-button"
+            >
+                Página inicial
+            </a>
+
+        </div>
 
     </header>
 
 
-    <main class="container">
+    <main class="page-container">
+
+        <!-- HERO -->
+
+        <section class="donation-hero">
+
+            <div class="hero-content">
+
+                <span class="hero-tag">
+                    ❤ CAMPANHA DE DOAÇÃO
+                </span>
+
+                <h1>
+                    Sua doação pode
+                    <span>fazer a diferença.</span>
+                </h1>
+
+                <p>
+                    Escolha um dos itens abaixo, informe seu nome
+                    e a quantidade que deseja doar.
+                    Cada contribuição nos aproxima ainda mais da nossa meta.
+                </p>
+
+            </div>
+
+        </section>
 
 
-        <div class="titulo">
+        <!-- ESTATÍSTICAS -->
 
-            <h2>
-                Lista de Doações
-            </h2>
+        <section class="stats-grid public-stats">
 
-            <p>
-                Escolha um produto e informe sua doação.
-            </p>
+            <article class="stat-card">
 
-        </div>
+                <div class="stat-icon">
+                    📦
+                </div>
+
+                <div>
+
+                    <span>Itens necessários</span>
+
+                    <strong id="userStatItens">
+                        0
+                    </strong>
+
+                </div>
+
+            </article>
 
 
-        <div id="listaProdutos">
+            <article class="stat-card">
 
-        </div>
+                <div class="stat-icon">
+                    ❤
+                </div>
 
+                <div>
+
+                    <span>Itens já doados</span>
+
+                    <strong id="userStatDoado">
+                        0
+                    </strong>
+
+                </div>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <div class="stat-icon">
+                    🎯
+                </div>
+
+                <div>
+
+                    <span>Meta total</span>
+
+                    <strong id="userStatMeta">
+                        0
+                    </strong>
+
+                </div>
+
+            </article>
+
+
+            <article class="stat-card">
+
+                <div class="stat-icon">
+                    ✓
+                </div>
+
+                <div>
+
+                    <span>Metas atingidas</span>
+
+                    <strong id="userStatConcluidos">
+                        0
+                    </strong>
+
+                </div>
+
+            </article>
+
+        </section>
+
+
+        <!-- LISTAGEM -->
+
+        <section class="section-block">
+
+            <div class="section-heading user-section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        COMO POSSO AJUDAR?
+                    </span>
+
+                    <h2>
+                        Itens que precisamos
+                    </h2>
+
+                    <p>
+                        Escolha abaixo o item que você gostaria de doar.
+                    </p>
+
+                </div>
+
+
+                <div class="search-box">
+
+                    <span>
+                        🔎
+                    </span>
+
+                    <input
+                        type="text"
+                        id="searchItem"
+                        placeholder="Pesquisar item..."
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="userItems"
+                class="items-grid"
+            >
+            </div>
+
+        </section>
 
     </main>
 
 
-    <script>
+    <!-- MODAL DE DOAÇÃO -->
 
+    <div
+        class="modal-overlay"
+        id="donationModal"
+    >
 
-        /*
-        ==================================================
-        CARREGAR PRODUTOS
-        ==================================================
-        */
+        <div class="modal-card">
 
-        function carregarProdutos() {
+            <div class="modal-header">
 
-            const produtos =
-                JSON.parse(
-                    localStorage.getItem("produtos")
-                ) || [];
+                <div>
 
+                    <span class="small-label">
+                        REGISTRAR DOAÇÃO
+                    </span>
 
-            const lista =
-                document.getElementById(
-                    "listaProdutos"
-                );
+                    <h2>
+                        Quero ajudar
+                    </h2>
 
+                </div>
 
-            lista.innerHTML = "";
+                <button
+                    type="button"
+                    class="icon-button"
+                    id="closeDonationModal"
+                >
+                    ✕
+                </button>
 
+            </div>
 
-            if (produtos.length === 0) {
 
-                lista.innerHTML = `
+            <div
+                class="selected-item"
+                id="selectedItemInfo"
+            >
+            </div>
 
-                    <div class="sem-produtos">
 
-                        <h3>
-                            Nenhum produto cadastrado.
-                        </h3>
+            <form id="donationForm">
 
-                        <p>
-                            Aguarde o administrador cadastrar
-                            os produtos necessários.
-                        </p>
+                <input
+                    type="hidden"
+                    id="donationItemId"
+                >
 
-                    </div>
 
-                `;
+                <div class="form-group">
 
-                return;
-            }
+                    <label for="donorName">
+                        Seu nome
+                    </label>
 
+                    <input
+                        type="text"
+                        id="donorName"
+                        placeholder="Digite seu nome"
+                        maxlength="80"
+                        required
+                    >
 
-            produtos.forEach(produto => {
+                </div>
 
-                /*
-                Se o produto ainda não possuir
-                quantidade doada, começa com zero.
-                */
 
-                if (
-                    typeof produto.doado !== "number"
-                ) {
+                <div class="form-group">
 
-                    produto.doado = 0;
+                    <label for="donorQuantity">
+                        Quantidade que deseja doar
+                    </label>
 
-                }
+                    <input
+                        type="number"
+                        id="donorQuantity"
+                        min="1"
+                        step="1"
+                        placeholder="Ex.: 2"
+                        required
+                    >
 
+                    <small id="quantityHelp"></small>
 
-                if (
-                    !Array.isArray(
-                        produto.doadores
-                    )
-                ) {
+                </div>
 
-                    produto.doadores = [];
 
-                }
+                <p
+                    class="form-error"
+                    id="donationError"
+                ></p>
 
 
-                mostrarProduto(produto);
+                <button
+                    type="submit"
+                    class="primary-button full-button big-button"
+                >
+                    ❤ Confirmar minha doação
+                </button>
 
-            });
+            </form>
 
 
-            /*
-            Salva as alterações.
-            */
+            <p class="modal-note">
+                Obrigado por fazer parte desta campanha. ❤
+            </p>
 
-            localStorage.setItem(
-                "produtos",
-                JSON.stringify(produtos)
-            );
+        </div>
 
-        }
+    </div>
 
 
-        /*
-        ==================================================
-        MOSTRAR PRODUTO
-        ==================================================
-        */
+    <!-- TOAST -->
 
-        function mostrarProduto(produto) {
-
-            const lista =
-                document.getElementById(
-                    "listaProdutos"
-                );
-
-
-            const restante =
-                Math.max(
-                    produto.quantidade -
-                    produto.doado,
-                    0
-                );
-
-
-            const percentual =
-                Math.min(
-                    (
-                        produto.doado /
-                        produto.quantidade
-                    ) * 100,
-                    100
-                );
-
-
-            const completo =
-                produto.doado >=
-                produto.quantidade;
-
-
-            const card =
-                document.createElement("div");
-
-
-            card.className =
-                "produto" +
-                (
-                    completo
-                    ? " completo"
-                    : ""
-                );
-
-
-            /*
-            Lista de doadores
-            */
-
-            let listaDoadores = "";
-
-
-            if (
-                produto.doadores &&
-                produto.doadores.length > 0
-            ) {
-
-                listaDoadores = `
-
-                    <div class="doadores">
-
-                        <h4>
-                            Doações realizadas
-                        </h4>
-
-                        ${
-                            produto.doadores
-                            .map(doador => `
-
-                                <div class="doador">
-
-                                    👤
-                                    ${escaparHTML(doador.nome)}
-
-                                    -
-                                    ${doador.quantidade}
-                                    unidade(s)
-
-                                </div>
-
-                            `)
-                            .join("")
-                        }
-
-                    </div>
-
-                `;
-
-            }
-
-
-            /*
-            Se já completou
-            */
-
-            if (completo) {
-
-                card.innerHTML = `
-
-                    <h3>
-                        ${escaparHTML(produto.nome)}
-                    </h3>
-
-
-                    <div class="informacoes">
-
-                        <div class="informacao">
-
-                            <span>
-                                Necessário
-                            </span>
-
-                            <strong>
-                                ${produto.quantidade}
-                            </strong>
-
-                        </div>
-
-
-                        <div class="informacao">
-
-                            <span>
-                                Já doado
-                            </span>
-
-                            <strong>
-                                ${produto.doado}
-                            </strong>
-
-                        </div>
-
-
-                        <div class="informacao">
-
-                            <span>
-                                Situação
-                            </span>
-
-                            <strong>
-                                🟢 Completo
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="barra-container">
-
-                        <div
-                            class="barra completa"
-                            style="width: 100%"
-                        ></div>
-
-                    </div>
-
-
-                    <div class="mensagem-completo">
-
-                        ✅ Quantidade necessária
-                        atingida!
-
-                    </div>
-
-
-                    ${listaDoadores}
-
-                `;
-
-            }
-
-
-            /*
-            Se ainda falta doação
-            */
-
-            else {
-
-                card.innerHTML = `
-
-                    <h3>
-                        ${escaparHTML(produto.nome)}
-                    </h3>
-
-
-                    <div class="informacoes">
-
-                        <div class="informacao">
-
-                            <span>
-                                Necessário
-                            </span>
-
-                            <strong>
-                                ${produto.quantidade}
-                            </strong>
-
-                        </div>
-
-
-                        <div class="informacao">
-
-                            <span>
-                                Já doado
-                            </span>
-
-                            <strong>
-                                ${produto.doado}
-                            </strong>
-
-                        </div>
-
-
-                        <div class="informacao">
-
-                            <span>
-                                Falta
-                            </span>
-
-                            <strong>
-                                ${restante}
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="barra-container">
-
-                        <div
-                            class="barra"
-                            style="width: ${percentual}%"
-                        ></div>
-
-                    </div>
-
-
-                    <div class="formulario">
-
-                        <input
-                            type="text"
-                            id="nome-${produto.id}"
-                            placeholder="Nome de quem está doando"
-                        >
-
-
-                        <input
-                            type="number"
-                            id="quantidade-${produto.id}"
-                            placeholder="Quantidade"
-                            min="1"
-                        >
-
-
-                        <button
-                            class="botao-doar"
-                            onclick="registrarDoacao(${produto.id})"
-                        >
-
-                            🤝 Fazer Doação
-
-                        </button>
-
-                    </div>
-
-
-                    ${listaDoadores}
-
-                `;
-
-            }
-
-
-            lista.appendChild(card);
-
-        }
-
-
-        /*
-        ==================================================
-        REGISTRAR DOAÇÃO
-        ==================================================
-        */
-
-        function registrarDoacao(id) {
-
-            const produtos =
-                JSON.parse(
-                    localStorage.getItem("produtos")
-                ) || [];
-
-
-            const produto =
-                produtos.find(
-                    p => p.id === id
-                );
-
-
-            if (!produto) {
-
-                alert(
-                    "Produto não encontrado."
-                );
-
-                return;
-
-            }
-
-
-            const campoNome =
-                document.getElementById(
-                    `nome-${id}`
-                );
-
-
-            const campoQuantidade =
-                document.getElementById(
-                    `quantidade-${id}`
-                );
-
-
-            const nome =
-                campoNome.value.trim();
-
-
-            const quantidade =
-                Number(
-                    campoQuantidade.value
-                );
-
-
-            /*
-            Validação do nome
-            */
-
-            if (nome === "") {
-
-                alert(
-                    "Informe o nome da pessoa que está fazendo a doação."
-                );
-
-                campoNome.focus();
-
-                return;
-
-            }
-
-
-            /*
-            Validação da quantidade
-            */
-
-            if (
-                !quantidade ||
-                quantidade <= 0
-            ) {
-
-                alert(
-                    "Informe uma quantidade válida."
-                );
-
-                campoQuantidade.focus();
-
-                return;
-
-            }
-
-
-            /*
-            Calcula quanto ainda falta
-            */
-
-            const restante =
-                produto.quantidade -
-                produto.doado;
-
-
-            /*
-            Não permite doar mais
-            do que o necessário.
-            */
-
-            if (quantidade > restante) {
-
-                alert(
-
-                    "A quantidade informada é maior " +
-                    "que a quantidade necessária.\n\n" +
-
-                    "Só faltam " +
-                    restante +
-                    " unidade(s) de " +
-                    produto.nome +
-                    "."
-
-                );
-
-                campoQuantidade.focus();
-
-                return;
-
-            }
-
-
-            /*
-            Adiciona a quantidade
-            */
-
-            produto.doado += quantidade;
-
-
-            /*
-            Registra o doador
-            */
-
-            produto.doadores.push({
-
-                nome: nome,
-
-                quantidade: quantidade
-
-            });
-
-
-            /*
-            Salva no navegador
-            */
-
-            localStorage.setItem(
-
-                "produtos",
-
-                JSON.stringify(produtos)
-
-            );
-
-
-            /*
-            Atualiza a tela
-            */
-
-            carregarProdutos();
-
-
-            /*
-            Mensagem final
-            */
-
-            if (
-                produto.doado >=
-                produto.quantidade
-            ) {
-
-                alert(
-                    "Doação registrada!\n\n" +
-                    "A quantidade necessária de " +
-                    produto.nome +
-                    " foi atingida."
-                );
-
-            }
-
-            else {
-
-                const novaFalta =
-                    produto.quantidade -
-                    produto.doado;
-
-
-                alert(
-
-                    "Doação registrada com sucesso!\n\n" +
-
-                    "Ainda faltam " +
-                    novaFalta +
-                    " unidade(s) de " +
-                    produto.nome +
-                    "."
-
-                );
-
-            }
-
-        }
-
-
-        /*
-        ==================================================
-        VOLTAR
-        ==================================================
-        */
-
-        function voltar() {
-
-            window.location.href =
-                "index.html";
-
-        }
-
-
-        /*
-        ==================================================
-        PROTEÇÃO CONTRA HTML
-        ==================================================
-        */
-
-        function escaparHTML(texto) {
-
-            const div =
-                document.createElement("div");
-
-            div.textContent = texto;
-
-            return div.innerHTML;
-
-        }
-
-
-        /*
-        ==================================================
-        INICIAR
-        ==================================================
-        */
-
-        carregarProdutos();
-
-    </script>
-
+    <div id="toast" class="toast"></div>
 
 </body>
 
