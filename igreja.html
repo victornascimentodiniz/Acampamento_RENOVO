@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Doações - Igreja</title>
+
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+
+        body {
+
+            background: #f4f4f4;
+
+            min-height: 100vh;
+        }
+
+
+        /* CABEÇALHO */
+
+        header {
+
+            background: #4CAF50;
+
+            color: white;
+
+            padding: 20px;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+        }
+
+
+        header h1 {
+
+            font-size: 24px;
+        }
+
+
+        .voltar {
+
+            background: white;
+
+            color: #333;
+
+            border: none;
+
+            padding: 10px 18px;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            font-weight: bold;
+        }
+
+
+        /* CONTAINER */
+
+        .container {
+
+            width: 90%;
+
+            max-width: 900px;
+
+            margin: 40px auto;
+        }
+
+
+        /* TITULO */
+
+        .titulo {
+
+            text-align: center;
+
+            margin-bottom: 30px;
+        }
+
+
+        .titulo h2 {
+
+            font-size: 28px;
+
+            color: #333;
+
+            margin-bottom: 8px;
+        }
+
+
+        .titulo p {
+
+            color: #777;
+        }
+
+
+        /* LISTA */
+
+        #listaProdutos {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 20px;
+        }
+
+
+        /* PRODUTO */
+
+        .produto {
+
+            background: white;
+
+            border-radius: 15px;
+
+            padding: 25px;
+
+            box-shadow:
+                0 5px 20px rgba(0, 0, 0, 0.10);
+
+            border-left: 6px solid #4CAF50;
+        }
+
+
+        .produto.completo {
+
+            border-left: 6px solid #28a745;
+
+            background: #e9f8ec;
+        }
+
+
+        .produto h3 {
+
+            font-size: 22px;
+
+            color: #333;
+
+            margin-bottom: 15px;
+        }
+
+
+        /* INFORMAÇÕES */
+
+        .informacoes {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 10px;
+
+            margin-bottom: 20px;
+        }
+
+
+        .informacao {
+
+            background: #f5f5f5;
+
+            padding: 15px;
+
+            border-radius: 10px;
+
+            text-align: center;
+        }
+
+
+        .informacao span {
+
+            display: block;
+
+            font-size: 13px;
+
+            color: #777;
+
+            margin-bottom: 5px;
+        }
+
+
+        .informacao strong {
+
+            font-size: 20px;
+
+            color: #333;
+        }
+
+
+        /* BARRA DE PROGRESSO */
+
+        .barra-container {
+
+            width: 100%;
+
+            height: 18px;
+
+            background: #ddd;
+
+            border-radius: 20px;
+
+            overflow: hidden;
+
+            margin-bottom: 20px;
+        }
+
+
+        .barra {
+
+            height: 100%;
+
+            background: #4CAF50;
+
+            transition: width 0.4s;
+
+            width: 0%;
+        }
+
+
+        .barra.completa {
+
+            background: #28a745;
+        }
+
+
+        /* FORMULÁRIO */
+
+        .formulario {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 180px;
+
+            gap: 12px;
+        }
+
+
+        .formulario input {
+
+            width: 100%;
+
+            padding: 14px;
+
+            border: 1px solid #ccc;
+
+            border-radius: 8px;
+
+            font-size: 16px;
+        }
+
+
+        .botao-doar {
+
+            grid-column: 1 / -1;
+
+            padding: 15px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #4CAF50;
+
+            color: white;
+
+            font-size: 17px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+
+        .botao-doar:hover {
+
+            background: #3d9141;
+        }
+
+
+        .botao-doar:disabled {
+
+            background: #999;
+
+            cursor: not-allowed;
+        }
+
+
+        /* COMPLETO */
+
+        .mensagem-completo {
+
+            background: #28a745;
+
+            color: white;
+
+            padding: 15px;
+
+            border-radius: 8px;
+
+            text-align: center;
+
+            font-weight: bold;
+        }
+
+
+        /* SEM PRODUTOS */
+
+        .sem-produtos {
+
+            background: white;
+
+            padding: 40px;
+
+            border-radius: 15px;
+
+            text-align: center;
+
+            color: #999;
+        }
+
+
+        /* DOAÇÕES */
+
+        .doadores {
+
+            margin-top: 20px;
+
+            border-top: 1px solid #ddd;
+
+            padding-top: 15px;
+        }
+
+
+        .doadores h4 {
+
+            margin-bottom: 10px;
+
+            color: #555;
+        }
+
+
+        .doador {
+
+            padding: 8px 0;
+
+            color: #666;
+
+            border-bottom: 1px solid #eee;
+        }
+
+
+        /* CELULAR */
+
+        @media (max-width: 600px) {
+
+            header {
+
+                flex-direction: column;
+
+                gap: 15px;
+
+                text-align: center;
+            }
+
+
+            .informacoes {
+
+                grid-template-columns: 1fr;
+            }
+
+
+            .formulario {
+
+                grid-template-columns: 1fr;
+            }
+
+
+            .produto {
+
+                padding: 20px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- CABEÇALHO -->
+
+    <header>
+
+        <h1>
+            ⛪ Área da Igreja
+        </h1>
+
+
+        <button
+            class="voltar"
+            onclick="voltar()"
+        >
+            Voltar
+        </button>
+
+    </header>
+
+
+    <main class="container">
+
+
+        <div class="titulo">
+
+            <h2>
+                Lista de Doações
+            </h2>
+
+            <p>
+                Escolha um produto e informe sua doação.
+            </p>
+
+        </div>
+
+
+        <div id="listaProdutos">
+
+        </div>
+
+
+    </main>
+
+
+    <script>
+
+
+        /*
+        ==================================================
+        CARREGAR PRODUTOS
+        ==================================================
+        */
+
+        function carregarProdutos() {
+
+            const produtos =
+                JSON.parse(
+                    localStorage.getItem("produtos")
+                ) || [];
+
+
+            const lista =
+                document.getElementById(
+                    "listaProdutos"
+                );
+
+
+            lista.innerHTML = "";
+
+
+            if (produtos.length === 0) {
+
+                lista.innerHTML = `
+
+                    <div class="sem-produtos">
+
+                        <h3>
+                            Nenhum produto cadastrado.
+                        </h3>
+
+                        <p>
+                            Aguarde o administrador cadastrar
+                            os produtos necessários.
+                        </p>
+
+                    </div>
+
+                `;
+
+                return;
+            }
+
+
+            produtos.forEach(produto => {
+
+                /*
+                Se o produto ainda não possuir
+                quantidade doada, começa com zero.
+                */
+
+                if (
+                    typeof produto.doado !== "number"
+                ) {
+
+                    produto.doado = 0;
+
+                }
+
+
+                if (
+                    !Array.isArray(
+                        produto.doadores
+                    )
+                ) {
+
+                    produto.doadores = [];
+
+                }
+
+
+                mostrarProduto(produto);
+
+            });
+
+
+            /*
+            Salva as alterações.
+            */
+
+            localStorage.setItem(
+                "produtos",
+                JSON.stringify(produtos)
+            );
+
+        }
+
+
+        /*
+        ==================================================
+        MOSTRAR PRODUTO
+        ==================================================
+        */
+
+        function mostrarProduto(produto) {
+
+            const lista =
+                document.getElementById(
+                    "listaProdutos"
+                );
+
+
+            const restante =
+                Math.max(
+                    produto.quantidade -
+                    produto.doado,
+                    0
+                );
+
+
+            const percentual =
+                Math.min(
+                    (
+                        produto.doado /
+                        produto.quantidade
+                    ) * 100,
+                    100
+                );
+
+
+            const completo =
+                produto.doado >=
+                produto.quantidade;
+
+
+            const card =
+                document.createElement("div");
+
+
+            card.className =
+                "produto" +
+                (
+                    completo
+                    ? " completo"
+                    : ""
+                );
+
+
+            /*
+            Lista de doadores
+            */
+
+            let listaDoadores = "";
+
+
+            if (
+                produto.doadores &&
+                produto.doadores.length > 0
+            ) {
+
+                listaDoadores = `
+
+                    <div class="doadores">
+
+                        <h4>
+                            Doações realizadas
+                        </h4>
+
+                        ${
+                            produto.doadores
+                            .map(doador => `
+
+                                <div class="doador">
+
+                                    👤
+                                    ${escaparHTML(doador.nome)}
+
+                                    -
+                                    ${doador.quantidade}
+                                    unidade(s)
+
+                                </div>
+
+                            `)
+                            .join("")
+                        }
+
+                    </div>
+
+                `;
+
+            }
+
+
+            /*
+            Se já completou
+            */
+
+            if (completo) {
+
+                card.innerHTML = `
+
+                    <h3>
+                        ${escaparHTML(produto.nome)}
+                    </h3>
+
+
+                    <div class="informacoes">
+
+                        <div class="informacao">
+
+                            <span>
+                                Necessário
+                            </span>
+
+                            <strong>
+                                ${produto.quantidade}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="informacao">
+
+                            <span>
+                                Já doado
+                            </span>
+
+                            <strong>
+                                ${produto.doado}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="informacao">
+
+                            <span>
+                                Situação
+                            </span>
+
+                            <strong>
+                                🟢 Completo
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="barra-container">
+
+                        <div
+                            class="barra completa"
+                            style="width: 100%"
+                        ></div>
+
+                    </div>
+
+
+                    <div class="mensagem-completo">
+
+                        ✅ Quantidade necessária
+                        atingida!
+
+                    </div>
+
+
+                    ${listaDoadores}
+
+                `;
+
+            }
+
+
+            /*
+            Se ainda falta doação
+            */
+
+            else {
+
+                card.innerHTML = `
+
+                    <h3>
+                        ${escaparHTML(produto.nome)}
+                    </h3>
+
+
+                    <div class="informacoes">
+
+                        <div class="informacao">
+
+                            <span>
+                                Necessário
+                            </span>
+
+                            <strong>
+                                ${produto.quantidade}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="informacao">
+
+                            <span>
+                                Já doado
+                            </span>
+
+                            <strong>
+                                ${produto.doado}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="informacao">
+
+                            <span>
+                                Falta
+                            </span>
+
+                            <strong>
+                                ${restante}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="barra-container">
+
+                        <div
+                            class="barra"
+                            style="width: ${percentual}%"
+                        ></div>
+
+                    </div>
+
+
+                    <div class="formulario">
+
+                        <input
+                            type="text"
+                            id="nome-${produto.id}"
+                            placeholder="Nome de quem está doando"
+                        >
+
+
+                        <input
+                            type="number"
+                            id="quantidade-${produto.id}"
+                            placeholder="Quantidade"
+                            min="1"
+                        >
+
+
+                        <button
+                            class="botao-doar"
+                            onclick="registrarDoacao(${produto.id})"
+                        >
+
+                            🤝 Fazer Doação
+
+                        </button>
+
+                    </div>
+
+
+                    ${listaDoadores}
+
+                `;
+
+            }
+
+
+            lista.appendChild(card);
+
+        }
+
+
+        /*
+        ==================================================
+        REGISTRAR DOAÇÃO
+        ==================================================
+        */
+
+        function registrarDoacao(id) {
+
+            const produtos =
+                JSON.parse(
+                    localStorage.getItem("produtos")
+                ) || [];
+
+
+            const produto =
+                produtos.find(
+                    p => p.id === id
+                );
+
+
+            if (!produto) {
+
+                alert(
+                    "Produto não encontrado."
+                );
+
+                return;
+
+            }
+
+
+            const campoNome =
+                document.getElementById(
+                    `nome-${id}`
+                );
+
+
+            const campoQuantidade =
+                document.getElementById(
+                    `quantidade-${id}`
+                );
+
+
+            const nome =
+                campoNome.value.trim();
+
+
+            const quantidade =
+                Number(
+                    campoQuantidade.value
+                );
+
+
+            /*
+            Validação do nome
+            */
+
+            if (nome === "") {
+
+                alert(
+                    "Informe o nome da pessoa que está fazendo a doação."
+                );
+
+                campoNome.focus();
+
+                return;
+
+            }
+
+
+            /*
+            Validação da quantidade
+            */
+
+            if (
+                !quantidade ||
+                quantidade <= 0
+            ) {
+
+                alert(
+                    "Informe uma quantidade válida."
+                );
+
+                campoQuantidade.focus();
+
+                return;
+
+            }
+
+
+            /*
+            Calcula quanto ainda falta
+            */
+
+            const restante =
+                produto.quantidade -
+                produto.doado;
+
+
+            /*
+            Não permite doar mais
+            do que o necessário.
+            */
+
+            if (quantidade > restante) {
+
+                alert(
+
+                    "A quantidade informada é maior " +
+                    "que a quantidade necessária.\n\n" +
+
+                    "Só faltam " +
+                    restante +
+                    " unidade(s) de " +
+                    produto.nome +
+                    "."
+
+                );
+
+                campoQuantidade.focus();
+
+                return;
+
+            }
+
+
+            /*
+            Adiciona a quantidade
+            */
+
+            produto.doado += quantidade;
+
+
+            /*
+            Registra o doador
+            */
+
+            produto.doadores.push({
+
+                nome: nome,
+
+                quantidade: quantidade
+
+            });
+
+
+            /*
+            Salva no navegador
+            */
+
+            localStorage.setItem(
+
+                "produtos",
+
+                JSON.stringify(produtos)
+
+            );
+
+
+            /*
+            Atualiza a tela
+            */
+
+            carregarProdutos();
+
+
+            /*
+            Mensagem final
+            */
+
+            if (
+                produto.doado >=
+                produto.quantidade
+            ) {
+
+                alert(
+                    "Doação registrada!\n\n" +
+                    "A quantidade necessária de " +
+                    produto.nome +
+                    " foi atingida."
+                );
+
+            }
+
+            else {
+
+                const novaFalta =
+                    produto.quantidade -
+                    produto.doado;
+
+
+                alert(
+
+                    "Doação registrada com sucesso!\n\n" +
+
+                    "Ainda faltam " +
+                    novaFalta +
+                    " unidade(s) de " +
+                    produto.nome +
+                    "."
+
+                );
+
+            }
+
+        }
+
+
+        /*
+        ==================================================
+        VOLTAR
+        ==================================================
+        */
+
+        function voltar() {
+
+            window.location.href =
+                "index.html";
+
+        }
+
+
+        /*
+        ==================================================
+        PROTEÇÃO CONTRA HTML
+        ==================================================
+        */
+
+        function escaparHTML(texto) {
+
+            const div =
+                document.createElement("div");
+
+            div.textContent = texto;
+
+            return div.innerHTML;
+
+        }
+
+
+        /*
+        ==================================================
+        INICIAR
+        ==================================================
+        */
+
+        carregarProdutos();
+
+    </script>
+
+
+</body>
+
+</html>
