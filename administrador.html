@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Administrador - Doações</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #f4f4f4;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #333;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 24px;
+        }
+
+        .voltar {
+            background: white;
+            color: #333;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            margin: 40px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.10);
+            margin-bottom: 30px;
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .formulario {
+            display: grid;
+            grid-template-columns: 1fr 200px;
+            gap: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .botao-cadastrar {
+            grid-column: 1 / -1;
+
+            padding: 14px;
+
+            border: none;
+            border-radius: 8px;
+
+            background: #4CAF50;
+            color: white;
+
+            font-size: 16px;
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        .botao-cadastrar:hover {
+            background: #3d9141;
+        }
+
+        .produto {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 18px;
+            margin-bottom: 12px;
+
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+
+        .produto-info h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .produto-info p {
+            color: #777;
+        }
+
+        .excluir {
+            background: #dc3545;
+            color: white;
+
+            border: none;
+            padding: 9px 14px;
+
+            border-radius: 7px;
+
+            cursor: pointer;
+        }
+
+        .excluir:hover {
+            background: #b52a37;
+        }
+
+        .sem-produtos {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+
+        @media (max-width: 600px) {
+
+            .formulario {
+                grid-template-columns: 1fr;
+            }
+
+            .produto {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .excluir {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <header>
+
+        <h1>⚙️ Administrador</h1>
+
+        <button class="voltar" onclick="voltar()">
+            Voltar
+        </button>
+
+    </header>
+
+
+    <div class="container">
+
+
+        <!-- CADASTRO -->
+
+        <div class="card">
+
+            <h2>📦 Cadastrar Produto</h2>
+
+            <div class="formulario">
+
+                <input
+                    type="text"
+                    id="nomeProduto"
+                    placeholder="Nome do produto"
+                >
+
+                <input
+                    type="number"
+                    id="quantidade"
+                    placeholder="Quantidade necessária"
+                    min="1"
+                >
+
+                <button
+                    class="botao-cadastrar"
+                    onclick="cadastrarProduto()"
+                >
+                    + Cadastrar Produto
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- PRODUTOS CADASTRADOS -->
+
+        <div class="card">
+
+            <h2>📋 Produtos cadastrados</h2>
+
+            <div id="listaProdutos">
+
+                <div class="sem-produtos">
+                    Nenhum produto cadastrado.
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <script>
+
+        function cadastrarProduto() {
+
+            const nome =
+                document.getElementById("nomeProduto").value.trim();
+
+            const quantidade =
+                document.getElementById("quantidade").value;
+
+
+            if (nome === "") {
+
+                alert("Digite o nome do produto.");
+
+                return;
+            }
+
+
+            if (quantidade === "" || quantidade <= 0) {
+
+                alert("Digite uma quantidade válida.");
+
+                return;
+            }
+
+
+            const produtos =
+                JSON.parse(localStorage.getItem("produtos")) || [];
+
+
+            const novoProduto = {
+
+                id: Date.now(),
+
+                nome: nome,
+
+                quantidade: Number(quantidade)
+
+            };
+
+
+            produtos.push(novoProduto);
+
+
+            localStorage.setItem(
+                "produtos",
+                JSON.stringify(produtos)
+            );
+
+
+            document.getElementById("nomeProduto").value = "";
+
+            document.getElementById("quantidade").value = "";
+
+
+            mostrarProdutos();
+
+        }
+
+
+        function mostrarProdutos() {
+
+            const lista =
+                document.getElementById("listaProdutos");
+
+
+            const produtos =
+                JSON.parse(localStorage.getItem("produtos")) || [];
+
+
+            lista.innerHTML = "";
+
+
+            if (produtos.length === 0) {
+
+                lista.innerHTML = `
+                    <div class="sem-produtos">
+                        Nenhum produto cadastrado.
+                    </div>
+                `;
+
+                return;
+            }
+
+
+            produtos.forEach(produto => {
+
+                lista.innerHTML += `
+
+                    <div class="produto">
+
+                        <div class="produto-info">
+
+                            <h3>
+                                ${produto.nome}
+                            </h3>
+
+                            <p>
+                                Quantidade necessária:
+                                <strong>
+                                    ${produto.quantidade}
+                                </strong>
+                            </p>
+
+                        </div>
+
+
+                        <button
+                            class="excluir"
+                            onclick="excluirProduto(${produto.id})"
+                        >
+                            Excluir
+                        </button>
+
+                    </div>
+
+                `;
+
+            });
+
+        }
+
+
+        function excluirProduto(id) {
+
+            let produtos =
+                JSON.parse(localStorage.getItem("produtos")) || [];
+
+
+            produtos =
+                produtos.filter(produto => produto.id !== id);
+
+
+            localStorage.setItem(
+                "produtos",
+                JSON.stringify(produtos)
+            );
+
+
+            mostrarProdutos();
+
+        }
+
+
+        function voltar() {
+
+            window.location.href = "index.html";
+
+        }
+
+
+        mostrarProdutos();
+
+    </script>
+
+</body>
+
+</html>
