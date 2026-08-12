@@ -2,391 +2,162 @@
 <html lang="pt-BR">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <title>Campanha de Doações</title>
 
-    <title>Doações</title>
+    <link rel="stylesheet" href="style.css">
 
-
-    <style>
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-
-        body {
-
-            min-height: 100vh;
-
-            display: flex;
-
-            justify-content: center;
-
-            align-items: center;
-
-            background: linear-gradient(
-                135deg,
-                #f5f5f5,
-                #e8e8e8
-            );
-
-        }
-
-
-        /* CONTAINER PRINCIPAL */
-
-        .container {
-
-            width: 90%;
-
-            max-width: 450px;
-
-            background: white;
-
-            padding: 40px;
-
-            border-radius: 20px;
-
-            box-shadow:
-                0 10px 30px rgba(0, 0, 0, 0.15);
-
-            text-align: center;
-
-        }
-
-
-        /* LOGO */
-
-        .logo {
-
-            width: 90px;
-
-            height: 90px;
-
-            margin: 0 auto 20px;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            background: #f0f0f0;
-
-            border-radius: 50%;
-
-            font-size: 42px;
-
-        }
-
-
-        /* TITULO */
-
-        h1 {
-
-            font-size: 32px;
-
-            margin-bottom: 10px;
-
-            color: #222;
-
-        }
-
-
-        /* SUBTITULO */
-
-        .subtitulo {
-
-            color: #777;
-
-            margin-bottom: 35px;
-
-            font-size: 16px;
-
-        }
-
-
-        /* OPÇÕES */
-
-        .opcoes {
-
-            display: flex;
-
-            flex-direction: column;
-
-            gap: 18px;
-
-        }
-
-
-        /* BOTÕES */
-
-        .botao {
-
-            width: 100%;
-
-            padding: 18px;
-
-            border: none;
-
-            border-radius: 12px;
-
-            font-size: 18px;
-
-            font-weight: bold;
-
-            cursor: pointer;
-
-            transition: 0.3s;
-
-        }
-
-
-        /* IGREJA */
-
-        .igreja {
-
-            background: #4CAF50;
-
-            color: white;
-
-        }
-
-
-        .igreja:hover {
-
-            background: #3e9142;
-
-            transform: translateY(-2px);
-
-        }
-
-
-        /* ADMINISTRADOR */
-
-        .administrador {
-
-            background: #333;
-
-            color: white;
-
-        }
-
-
-        .administrador:hover {
-
-            background: #222;
-
-            transform: translateY(-2px);
-
-        }
-
-
-        /* ÍCONES */
-
-        .icone {
-
-            margin-right: 8px;
-
-        }
-
-
-        /* RODAPÉ */
-
-        .rodape {
-
-            margin-top: 30px;
-
-            font-size: 13px;
-
-            color: #999;
-
-        }
-
-
-        /* RESPONSIVIDADE */
-
-        @media (max-width: 500px) {
-
-            .container {
-
-                padding: 30px 20px;
-
-            }
-
-
-            h1 {
-
-                font-size: 28px;
-
-            }
-
-
-            .botao {
-
-                padding: 16px;
-
-            }
-
-        }
-
-    </style>
-
+    <script src="app.js" defer></script>
 </head>
 
+<body data-page="login" class="login-page">
 
-<body>
+    <main class="login-container">
 
+        <section class="login-card">
 
-    <!--
-    ==================================================
-    TELA PRINCIPAL
-    ==================================================
-    -->
+            <div class="brand-icon">
+                ❤
+            </div>
 
+            <span class="eyebrow">Campanha Solidária</span>
 
-    <div class="container">
+            <h1>Campanha de Doações</h1>
 
+            <p class="login-description">
+                Juntos podemos fazer a diferença.
+                Escolha abaixo como deseja acessar o sistema.
+            </p>
 
-        <!-- LOGO -->
+            <div class="role-grid">
 
-        <div class="logo">
+                <!-- USUÁRIO -->
 
-            ❤️
+                <button class="role-card role-user" id="btnUsuario">
 
-        </div>
+                    <div class="role-icon">
+                        👥
+                    </div>
 
+                    <div>
+                        <h2>Quero Doar</h2>
 
-        <!-- TÍTULO -->
+                        <p>
+                            Veja os itens necessários e registre sua doação.
+                        </p>
+                    </div>
 
-        <h1>
+                    <span class="role-arrow">
+                        →
+                    </span>
 
-            DOAÇÕES
+                </button>
 
-        </h1>
 
+                <!-- ADMIN -->
 
-        <!-- SUBTÍTULO -->
+                <button class="role-card role-admin" id="btnAdministrador">
 
-        <p class="subtitulo">
+                    <div class="role-icon">
+                        ⚙
+                    </div>
 
-            Selecione uma opção para continuar
+                    <div>
+                        <h2>Administrador</h2>
 
-        </p>
+                        <p>
+                            Cadastre itens e acompanhe todas as doações.
+                        </p>
+                    </div>
 
+                    <span class="role-arrow">
+                        →
+                    </span>
 
-        <!--
-        ==================================================
-        BOTÕES
-        ==================================================
-        -->
+                </button>
 
-        <div class="opcoes">
+            </div>
 
 
-            <!--
-            BOTÃO IGREJA
-            -->
+            <!-- ÁREA DA SENHA -->
 
-            <button
-                class="botao igreja"
-                onclick="entrarIgreja()"
-            >
+            <div class="admin-login-box" id="adminLoginBox">
 
-                <span class="icone">
+                <div class="admin-login-header">
 
-                    ⛪
+                    <div>
+                        <span class="small-label">
+                            ACESSO RESTRITO
+                        </span>
 
-                </span>
+                        <h3>Área do Administrador</h3>
+                    </div>
 
-                Igreja
+                    <button
+                        type="button"
+                        class="icon-button"
+                        id="fecharAdminLogin"
+                        title="Fechar"
+                    >
+                        ✕
+                    </button>
 
-            </button>
+                </div>
 
+                <form id="adminLoginForm">
 
-            <!--
-            BOTÃO ADMINISTRADOR
-            -->
+                    <label for="adminPassword">
+                        Senha do administrador
+                    </label>
 
-            <button
-                class="botao administrador"
-                onclick="entrarAdministrador()"
-            >
+                    <div class="password-field">
 
-                <span class="icone">
+                        <input
+                            type="password"
+                            id="adminPassword"
+                            placeholder="Digite a senha"
+                            autocomplete="current-password"
+                            required
+                        >
 
-                    👤
+                        <button
+                            type="button"
+                            id="togglePassword"
+                            class="password-toggle"
+                        >
+                            Mostrar
+                        </button>
 
-                </span>
+                    </div>
 
-                Administrador
+                    <p class="form-error" id="loginError"></p>
 
-            </button>
+                    <button
+                        type="submit"
+                        class="primary-button full-button"
+                    >
+                        Entrar no painel
+                    </button>
 
+                </form>
 
-        </div>
+            </div>
 
+            <div class="login-footer">
 
-        <!-- RODAPÉ -->
+                <span>❤</span>
 
-        <div class="rodape">
+                <p>
+                    Cada contribuição transforma vidas.
+                </p>
 
-            Sistema de Doações
+            </div>
 
-        </div>
+        </section>
 
-
-    </div>
-
-
-    <!--
-    ==================================================
-    JAVASCRIPT
-    ==================================================
-    -->
-
-    <script>
-
-
-        /*
-        ==================================================
-        ENTRAR NA ÁREA DA IGREJA
-        ==================================================
-        */
-
-        function entrarIgreja() {
-
-            window.location.href =
-                "igreja.html";
-
-        }
-
-
-        /*
-        ==================================================
-        ENTRAR NA ÁREA DO ADMINISTRADOR
-        ==================================================
-        */
-
-        function entrarAdministrador() {
-
-            window.location.href =
-                "administrador.html";
-
-        }
-
-
-    </script>
-
+    </main>
 
 </body>
 
