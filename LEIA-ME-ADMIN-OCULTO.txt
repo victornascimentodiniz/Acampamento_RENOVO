@@ -1,0 +1,64 @@
+ACAMPAMENTO RENOVO - CADASTRO SECRETO DE ADMINISTRADOR
+
+O que foi adicionado
+- 10 cliques no coração principal da página inicial abrem o cadastro secreto.
+- O formulário pede e-mail, senha, confirmação e um código mestre.
+- A criação do usuário acontece em uma Supabase Edge Function.
+- A Secret Key nunca fica no GitHub Pages.
+
+IMPORTANTE
+O gesto de 10 cliques serve apenas para esconder visualmente a função.
+A segurança real é o ADMIN_SETUP_CODE, que precisa ser longo e secreto.
+
+1. ARQUIVOS DO SITE
+Substitua na raiz do GitHub:
+- index.html
+- app.js
+- style.css
+
+Os demais arquivos deste pacote continuam compatíveis:
+- igreja.html
+- administrador.html
+- redefinir-senha.html
+- supabase-config.js
+
+2. EDGE FUNCTION
+Código:
+supabase/functions/criar-admin/index.ts
+
+A função precisa ser publicada no Supabase com o nome:
+criar-admin
+
+Como ela é chamada antes de existir um usuário autenticado, a verificação JWT da função precisa ficar desativada.
+O arquivo supabase/config.toml já contém:
+
+[functions.criar-admin]
+verify_jwt = false
+
+Se criar pelo Dashboard, desative a opção de exigir/verificar JWT para essa função.
+
+3. SECRET PERSONALIZADO
+No Supabase, em Edge Functions / Secrets, crie:
+
+ADMIN_SETUP_CODE
+
+Use um valor longo, por exemplo:
+RENOVO-ADM-2026-COLOQUE-AQUI-UM-CODIGO-LONGO-E-UNICO
+
+NÃO coloque esse valor em index.html, app.js ou GitHub.
+
+4. SECRETS PADRÃO
+A Edge Function usa SUPABASE_URL e SUPABASE_SECRET_KEYS, disponibilizados pelo Supabase no ambiente hospedado.
+Ela lê a secret key chamada "default" apenas no servidor.
+
+5. COMO USAR
+- Abra a página inicial.
+- Clique 10 vezes rapidamente no coração grande (♡).
+- Preencha e-mail e senha do novo administrador.
+- Digite o ADMIN_SETUP_CODE.
+- Clique em Criar administrador.
+- O sistema cria auth.users e depois public.administradores.
+
+6. SEGURANÇA
+A Secret Key compartilhada anteriormente deve continuar revogada/rotacionada.
+Ela não está presente neste pacote.

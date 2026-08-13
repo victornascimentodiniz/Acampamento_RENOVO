@@ -27,7 +27,7 @@
 
     <main class="login-container">
         <section class="login-card renovo-login-card">
-            <div class="brand-icon">♡</div>
+            <div class="brand-icon" id="secretAdminHeart" aria-label="Símbolo da campanha">♡</div>
 
             <span class="eyebrow">CAMPANHA SOLIDÁRIA</span>
 
@@ -142,6 +142,92 @@
             </div>
         </section>
     </main>
+
+
+
+    <!-- CADASTRO SECRETO DE ADMINISTRADOR -->
+    <div class="modal-overlay" id="createAdminModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <span class="small-label">CONFIGURAÇÃO RESTRITA</span>
+                    <h2>Criar administrador</h2>
+                </div>
+
+                <button
+                    type="button"
+                    class="icon-button"
+                    id="closeCreateAdminModal"
+                    aria-label="Fechar"
+                >
+                    ✕
+                </button>
+            </div>
+
+            <p class="admin-secret-description">
+                Cadastre um novo administrador para o Acampamento RENOVO.
+                O código mestre é validado somente no servidor.
+            </p>
+
+            <form id="createAdminForm">
+                <div class="form-group">
+                    <label for="createAdminEmail">E-mail</label>
+                    <input
+                        type="email"
+                        id="createAdminEmail"
+                        placeholder="administrador@email.com"
+                        autocomplete="off"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="createAdminPassword">Senha</label>
+                    <input
+                        type="password"
+                        id="createAdminPassword"
+                        placeholder="Mínimo de 8 caracteres"
+                        minlength="8"
+                        autocomplete="new-password"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="createAdminPasswordConfirm">Confirmar senha</label>
+                    <input
+                        type="password"
+                        id="createAdminPasswordConfirm"
+                        placeholder="Digite novamente a senha"
+                        minlength="8"
+                        autocomplete="new-password"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="createAdminMasterCode">Código mestre</label>
+                    <input
+                        type="password"
+                        id="createAdminMasterCode"
+                        placeholder="Código de segurança"
+                        autocomplete="off"
+                        required
+                    >
+                </div>
+
+                <p class="form-error" id="createAdminError"></p>
+
+                <button
+                    type="submit"
+                    class="primary-button full-button"
+                    id="btnCreateAdmin"
+                >
+                    Criar administrador
+                </button>
+            </form>
+        </div>
+    </div>
 
     <div id="toast" class="toast"></div>
 </body>

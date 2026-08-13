@@ -1885,3 +1885,24 @@ small {
 .back-login-link:hover {
     text-decoration: underline;
 }
+
+
+/* =========================================================
+   CADASTRO SECRETO DE ADMINISTRADOR
+========================================================= */
+
+#secretAdminHeart {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#secretAdminHeart:active {
+    transform: scale(0.96);
+}
+
+.admin-secret-description {
+    margin-bottom: 20px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+}

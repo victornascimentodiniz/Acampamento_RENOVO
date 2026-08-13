@@ -187,9 +187,184 @@ async function initLogin() {
     const erroLogin = document.getElementById("erroLogin");
     const btnEntrar = document.getElementById("btnEntrar");
     const btnEsqueciSenha = document.getElementById("btnEsqueciSenha");
+    const secretHeart = document.getElementById("secretAdminHeart");
+    const createAdminModal = document.getElementById("createAdminModal");
+    const closeCreateAdminModal = document.getElementById("closeCreateAdminModal");
+    const createAdminForm = document.getElementById("createAdminForm");
+
+    let secretHeartClicks = 0;
+    let secretHeartTimer = null;
 
     btnDoar?.addEventListener("click", () => {
         window.location.href = "igreja.html";
+    });
+
+    /* =====================================================
+       CADASTRO SECRETO DE ADMINISTRADOR
+       10 CLIQUES NO CORAÇÃO EM ATÉ 6 SEGUNDOS
+    ===================================================== */
+
+    const closeCreateAdmin = () => {
+        createAdminModal?.classList.remove("show");
+        createAdminForm?.reset();
+
+        const errorElement =
+            document.getElementById("createAdminError");
+
+        if (errorElement) {
+            errorElement.textContent = "";
+        }
+
+        document.body.style.overflow = "";
+    };
+
+    secretHeart?.addEventListener("click", () => {
+        secretHeartClicks += 1;
+
+        clearTimeout(secretHeartTimer);
+
+        secretHeartTimer = setTimeout(() => {
+            secretHeartClicks = 0;
+        }, 6000);
+
+        if (secretHeartClicks < 10) {
+            return;
+        }
+
+        secretHeartClicks = 0;
+        clearTimeout(secretHeartTimer);
+
+        createAdminModal?.classList.add("show");
+        document.body.style.overflow = "hidden";
+
+        setTimeout(() => {
+            document
+                .getElementById("createAdminEmail")
+                ?.focus();
+        }, 100);
+    });
+
+    closeCreateAdminModal?.addEventListener(
+        "click",
+        closeCreateAdmin
+    );
+
+    createAdminModal?.addEventListener("click", (event) => {
+        if (event.target === createAdminModal) {
+            closeCreateAdmin();
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && createAdminModal?.classList.contains("show")) {
+            closeCreateAdmin();
+        }
+    });
+
+    createAdminForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const email =
+            document.getElementById("createAdminEmail").value.trim();
+
+        const password =
+            document.getElementById("createAdminPassword").value;
+
+        const passwordConfirm =
+            document.getElementById("createAdminPasswordConfirm").value;
+
+        const setupCode =
+            document.getElementById("createAdminMasterCode").value;
+
+        const errorElement =
+            document.getElementById("createAdminError");
+
+        const button =
+            document.getElementById("btnCreateAdmin");
+
+        errorElement.textContent = "";
+
+        if (!email) {
+            errorElement.textContent = "Informe um e-mail válido.";
+            return;
+        }
+
+        if (password.length < 8) {
+            errorElement.textContent =
+                "A senha precisa ter pelo menos 8 caracteres.";
+            return;
+        }
+
+        if (password !== passwordConfirm) {
+            errorElement.textContent =
+                "As duas senhas não são iguais.";
+            return;
+        }
+
+        if (!setupCode) {
+            errorElement.textContent =
+                "Informe o código mestre.";
+            return;
+        }
+
+        setButtonLoading(
+            button,
+            true,
+            "Criar administrador",
+            "Criando..."
+        );
+
+        const { data, error } =
+            await window.supabaseClient.functions.invoke(
+                "criar-admin",
+                {
+                    body: {
+                        email,
+                        password,
+                        setupCode
+                    }
+                }
+            );
+
+        setButtonLoading(
+            button,
+            false,
+            "Criar administrador"
+        );
+
+        if (error) {
+            console.error("Erro da Edge Function:", error);
+
+            let message =
+                "Não foi possível criar o administrador.";
+
+            try {
+                const payload =
+                    await error.context?.json?.();
+
+                if (payload?.message) {
+                    message = payload.message;
+                }
+            } catch (_) {
+                // Usa a mensagem padrão.
+            }
+
+            errorElement.textContent = message;
+            return;
+        }
+
+        if (!data?.success) {
+            errorElement.textContent =
+                data?.message ||
+                "Não foi possível criar o administrador.";
+            return;
+        }
+
+        closeCreateAdmin();
+
+        showToast(
+            "Administrador criado com sucesso! Já é possível entrar com o novo e-mail e senha."
+        );
     });
 
     btnAdmin?.addEventListener("click", async () => {

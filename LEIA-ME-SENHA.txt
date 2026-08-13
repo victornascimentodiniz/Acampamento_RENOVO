@@ -1,0 +1,47 @@
+ATUALIZAÇÃO DE SENHA - ACAMPAMENTO RENOVO
+
+ARQUIVOS ATUALIZADOS:
+- index.html
+- administrador.html
+- app.js
+- style.css
+
+NOVO ARQUIVO:
+- redefinir-senha.html
+
+MANTENHA:
+- igreja.html
+- supabase-config.js
+
+IMPORTANTE - SUPABASE:
+1. Abra Supabase.
+2. Vá em Authentication / Autenticação.
+3. Abra URL Configuration.
+4. Em Site URL, use:
+   https://victornascimentodiniz.github.io/Acampamento_RENOVO/
+
+5. Em Redirect URLs, adicione:
+   https://victornascimentodiniz.github.io/Acampamento_RENOVO/redefinir-senha.html
+
+COMO RECUPERAR O ACESSO:
+1. Abra o site.
+2. Clique em Administrador.
+3. Digite:
+   victornascimento311@gmail.com
+4. Clique em "Esqueci minha senha".
+5. Abra o e-mail recebido.
+6. Clique no link.
+7. O site abrirá redefinir-senha.html.
+8. Cadastre uma nova senha com pelo menos 8 caracteres.
+9. Volte ao login e use a nova senha.
+
+COMO TROCAR A SENHA DEPOIS DE LOGADO:
+1. Entre no administrador.
+2. Clique em "Minha conta".
+3. Informe a senha atual.
+4. Informe e confirme a nova senha.
+5. Clique em "Salvar nova senha".
+
+OBSERVAÇÃO:
+A senha é armazenada pelo Supabase Auth como hash. Ela não fica em texto simples
+na tabela public.administradores.

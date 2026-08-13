@@ -1,0 +1,63 @@
+ACAMPAMENTO RENOVO - CONFIGURAÇÃO FINAL
+
+1) ARQUIVOS
+Coloque na raiz do GitHub:
+- index.html
+- igreja.html
+- administrador.html
+- style.css
+- app.js
+- supabase-config.js
+
+2) SUPABASE
+O projeto usado pelo supabase-config.js é:
+https://xgfywvvgtckjhypqjegv.supabase.co
+
+A Publishable Key está configurada.
+NÃO coloque Secret Key no GitHub.
+
+3) LOGIN DO ADMINISTRADOR
+Este código usa Supabase Auth de verdade.
+
+No Supabase:
+Autenticação -> Usuários
+
+Crie ou confirme um usuário com:
+- seu e-mail
+- a senha que você escolher (pode ser "terrao" se o Supabase aceitar)
+
+Depois o user_id desse usuário precisa existir na tabela:
+public.administradores
+
+Para conferir no SQL Editor:
+
+select
+    u.id,
+    u.email,
+    a.user_id is not null as eh_admin
+from auth.users u
+left join public.administradores a
+    on a.user_id = u.id;
+
+Se aparecer eh_admin = false, rode:
+
+insert into public.administradores (user_id)
+select id
+from auth.users
+where email = 'COLOQUE_AQUI_O_EMAIL_DO_ADMIN'
+on conflict (user_id) do nothing;
+
+4) REALTIME (OPCIONAL)
+O app também atualiza sozinho a cada 30 segundos.
+Para atualização quase instantânea, habilite no Supabase Realtime:
+- itens
+- doacoes
+- participantes
+
+5) SEGURANÇA
+A Secret Key que foi compartilhada anteriormente NÃO está em nenhum arquivo.
+Como ela foi exposta, gere uma nova Secret Key no Supabase e revogue/apague a antiga.
+
+6) GITHUB PAGES
+Após substituir os arquivos e fazer commit, teste:
+https://victornascimentodiniz.github.io/Acampamento_RENOVO/
