@@ -3,6 +3,24 @@
    Aplicação conectada ao Supabase
 ========================================================= */
 
+/* =========================================================
+   LOGIN TEMPORÁRIO PARA TESTES
+   IMPORTANTE:
+   - Esse acesso fica visível no código público do GitHub.
+   - Use somente durante os testes.
+   - Para voltar ao login real do Supabase, altere
+     TEST_ADMIN_MODE para false.
+========================================================= */
+
+const TEST_ADMIN_MODE = true;
+
+const TEST_ADMIN_EMAIL =
+    "victornascimento311@gmail.com";
+
+const TEST_ADMIN_PASSWORD =
+    "terrao";
+
+
 let toastTimeout;
 let currentItems = [];
 let currentParticipants = [];
@@ -453,12 +471,53 @@ async function initLogin() {
         const email = emailInput.value.trim();
         const password = passwordInput.value;
 
-        if (!email || !password) {
-            erroLogin.textContent = "Informe o e-mail e a senha.";
+        erroLogin.textContent = "";
+
+        /*
+         * =====================================================
+         * LOGIN TEMPORÁRIO PARA TESTES
+         * =====================================================
+         */
+        if (TEST_ADMIN_MODE) {
+            if (
+                email === TEST_ADMIN_EMAIL &&
+                password === TEST_ADMIN_PASSWORD
+            ) {
+                sessionStorage.setItem(
+                    "adminTeste",
+                    "true"
+                );
+
+                sessionStorage.setItem(
+                    "adminTesteEmail",
+                    TEST_ADMIN_EMAIL
+                );
+
+                window.location.href =
+                    "administrador.html";
+
+                return;
+            }
+
+            erroLogin.textContent =
+                "E-mail ou senha de teste incorretos.";
+
+            passwordInput.select();
+
             return;
         }
 
-        erroLogin.textContent = "";
+        /*
+         * =====================================================
+         * LOGIN REAL DO SUPABASE
+         * =====================================================
+         */
+        if (!email || !password) {
+            erroLogin.textContent =
+                "Informe o e-mail e a senha.";
+
+            return;
+        }
 
         setButtonLoading(
             btnEntrar,
@@ -484,10 +543,12 @@ async function initLogin() {
             );
 
             passwordInput.select();
+
             return;
         }
 
-        const admin = await isCurrentUserAdmin();
+        const admin =
+            await isCurrentUserAdmin();
 
         if (!admin) {
             await window.supabaseClient.auth.signOut();
@@ -504,8 +565,10 @@ async function initLogin() {
             return;
         }
 
-        window.location.href = "administrador.html";
+        window.location.href =
+            "administrador.html";
     });
+
 }
 
 
@@ -688,12 +751,26 @@ function stopLiveUpdates() {
 ========================================================= */
 
 async function initAdmin() {
-    const admin = await isCurrentUserAdmin();
+    const adminTeste =
+        sessionStorage.getItem("adminTeste") === "true";
 
-    if (!admin) {
-        await window.supabaseClient.auth.signOut();
-        window.location.href = "index.html";
-        return;
+    /*
+     * Se o modo temporário estiver ativo e o login de teste
+     * tiver sido validado, permite abrir o painel.
+     */
+    if (TEST_ADMIN_MODE && adminTeste) {
+        console.warn(
+            "Modo de administrador temporário ativo."
+        );
+    } else {
+        const admin =
+            await isCurrentUserAdmin();
+
+        if (!admin) {
+            await window.supabaseClient.auth.signOut();
+            window.location.href = "index.html";
+            return;
+        }
     }
 
     const itemForm = document.getElementById("itemForm");
@@ -713,6 +790,18 @@ async function initAdmin() {
         document.getElementById("changePasswordForm");
     const accountEmail =
         document.getElementById("accountEmail");
+
+    if (TEST_ADMIN_MODE && adminTeste) {
+        if (btnMinhaConta) {
+            btnMinhaConta.style.display = "none";
+        }
+
+        setTimeout(() => {
+            showToast(
+                "Modo de teste ativo. O login é temporário; ações protegidas pelo Supabase podem ser bloqueadas pelo RLS."
+            );
+        }, 300);
+    }
 
     itemForm?.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -758,12 +847,20 @@ async function initAdmin() {
         );
 
         if (error) {
-            showToast(
-                friendlyDatabaseError(
-                    error,
-                    "Não foi possível adicionar o item."
-                )
-            );
+            if (TEST_ADMIN_MODE && adminTeste) {
+                showToast(
+                    "O painel abriu no modo de teste, mas o Supabase bloqueou o cadastro porque não existe uma sessão real de administrador."
+                );
+            } else {
+                showToast(
+                    friendlyDatabaseError(
+                        error,
+                        "Não foi possível adicionar o item."
+                    )
+                );
+            }
+
+            console.error(error);
             return;
         }
 
@@ -1018,7 +1115,11 @@ async function initAdmin() {
     });
 
     logoutAdmin?.addEventListener("click", async () => {
+        sessionStorage.removeItem("adminTeste");
+        sessionStorage.removeItem("adminTesteEmail");
+
         await window.supabaseClient.auth.signOut();
+
         window.location.href = "index.html";
     });
 

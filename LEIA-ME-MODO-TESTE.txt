@@ -1,0 +1,32 @@
+ACAMPAMENTO RENOVO - MODO TEMPORÁRIO DE TESTE
+
+LOGIN TEMPORÁRIO
+E-mail: victornascimento311@gmail.com
+Senha: terrao
+
+O login temporário está no arquivo app.js:
+
+const TEST_ADMIN_MODE = true;
+const TEST_ADMIN_EMAIL = "victornascimento311@gmail.com";
+const TEST_ADMIN_PASSWORD = "terrao";
+
+PARA VOLTAR AO LOGIN REAL DO SUPABASE:
+Troque:
+const TEST_ADMIN_MODE = true;
+
+por:
+const TEST_ADMIN_MODE = false;
+
+ATENÇÃO:
+Esse login temporário apenas libera a tela do administrador.
+As operações protegidas pelo RLS do Supabase, como criar/excluir itens,
+podem ser recusadas porque o navegador não possui uma sessão real
+de administrador no Supabase.
+
+A página pública, participantes e demais consultas continuam usando
+o banco Supabase.
+
+SEGURANÇA:
+Como o GitHub Pages é público, qualquer pessoa pode abrir o app.js e
+ver o e-mail e a senha de teste. Remova ou desative esse modo antes
+de usar o site oficialmente.

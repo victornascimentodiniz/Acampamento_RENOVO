@@ -1,0 +1,5015 @@
+
+
+================================================================================
+ARQUIVO: index.html
+================================================================================
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Acampamento RENOVO 2026 - Campanha de doações e lista de participantes.">
+    <title>Acampamento RENOVO | Campanha de Doações</title>
+    <link rel="stylesheet" href="style.css">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="supabase-config.js"></script>
+    <script defer src="app.js"></script>
+</head>
+
+<body data-page="login" class="login-page">
+    <header class="landing-header">
+        <a class="landing-brand" href="index.html">
+            <span class="landing-brand-icon">✝</span>
+            <span>
+                <strong>Acampamento RENOVO</strong>
+                <small>Campanha de Doações • 2026</small>
+            </span>
+        </a>
+
+        <span class="landing-badge">RENOVO 2026</span>
+    </header>
+
+    <main class="login-container">
+        <section class="login-card renovo-login-card">
+            <div class="brand-icon" id="secretAdminHeart" aria-label="Símbolo da campanha">♡</div>
+
+            <span class="eyebrow">CAMPANHA SOLIDÁRIA</span>
+
+            <h1>Acampamento <span class="text-red">RENOVO</span></h1>
+
+            <p class="login-description">
+                Ajude-nos na preparação do Acampamento RENOVO.
+                Você pode contribuir com os itens necessários e também
+                confirmar quem participará do acampamento.
+            </p>
+
+            <div class="purpose-message">
+                ♡ Cada contribuição faz parte deste propósito.
+            </div>
+
+            <div class="role-grid">
+                <button type="button" class="role-card role-user" id="btnDoar">
+                    <div class="role-icon">♡</div>
+
+                    <div>
+                        <h2>Quero participar / doar</h2>
+                        <p>
+                            Veja os itens necessários, registre sua doação
+                            e adicione nomes à lista do acampamento.
+                        </p>
+                    </div>
+
+                    <span class="role-arrow">→</span>
+                </button>
+
+                <button type="button" class="role-card role-admin" id="btnAdmin">
+                    <div class="role-icon">⚙</div>
+
+                    <div>
+                        <h2>Administrador</h2>
+                        <p>
+                            Cadastre itens, acompanhe doações e gerencie
+                            a lista de participantes.
+                        </p>
+                    </div>
+
+                    <span class="role-arrow">→</span>
+                </button>
+            </div>
+
+            <div class="admin-login-box" id="areaLogin">
+                <div class="admin-login-header">
+                    <div>
+                        <span class="small-label">ACESSO RESTRITO</span>
+                        <h3>Painel do Administrador</h3>
+                    </div>
+
+                    <button type="button" class="icon-button" id="btnFechar" aria-label="Fechar">
+                        ✕
+                    </button>
+                </div>
+
+                <form id="formLogin">
+                    <div class="form-group">
+                        <label for="adminEmail">E-mail do administrador</label>
+                        <input
+                            type="email"
+                            id="adminEmail"
+                            placeholder="E-mail cadastrado no Supabase"
+                            autocomplete="username"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="senha">Senha</label>
+
+                        <div class="password-field">
+                            <input
+                                type="password"
+                                id="senha"
+                                placeholder="Digite sua senha"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <button type="button" class="password-toggle" id="btnMostrarSenha">
+                                Mostrar
+                            </button>
+                        </div>
+                    </div>
+
+                    <p class="form-error" id="erroLogin"></p>
+
+                    <button type="submit" class="primary-button full-button" id="btnEntrar">
+                        Entrar no painel
+                    </button>
+
+                    <button
+                        type="button"
+                        class="forgot-password-button"
+                        id="btnEsqueciSenha"
+                    >
+                        Esqueci minha senha
+                    </button>
+                </form>
+
+                <p class="login-security-note">
+                    <strong>Modo temporário de teste:</strong>
+                    e-mail <b>victornascimento311@gmail.com</b> e senha <b>terrao</b>.
+                    Depois dos testes, altere <b>TEST_ADMIN_MODE</b> para <b>false</b>
+                    no arquivo <b>app.js</b> para voltar ao login real do Supabase.
+                </p>
+            </div>
+
+            <div class="login-footer">
+                <span>✝</span>
+                <p>Acampamento RENOVO • comunhão, serviço e propósito.</p>
+            </div>
+        </section>
+    </main>
+
+
+
+    <!-- CADASTRO SECRETO DE ADMINISTRADOR -->
+    <div class="modal-overlay" id="createAdminModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <span class="small-label">CONFIGURAÇÃO RESTRITA</span>
+                    <h2>Criar administrador</h2>
+                </div>
+
+                <button
+                    type="button"
+                    class="icon-button"
+                    id="closeCreateAdminModal"
+                    aria-label="Fechar"
+                >
+                    ✕
+                </button>
+            </div>
+
+            <p class="admin-secret-description">
+                Cadastre um novo administrador para o Acampamento RENOVO.
+                O código mestre é validado somente no servidor.
+            </p>
+
+            <form id="createAdminForm">
+                <div class="form-group">
+                    <label for="createAdminEmail">E-mail</label>
+                    <input
+                        type="email"
+                        id="createAdminEmail"
+                        placeholder="administrador@email.com"
+                        autocomplete="off"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="createAdminPassword">Senha</label>
+                    <input
+                        type="password"
+                        id="createAdminPassword"
+                        placeholder="Mínimo de 8 caracteres"
+                        minlength="8"
+                        autocomplete="new-password"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="createAdminPasswordConfirm">Confirmar senha</label>
+                    <input
+                        type="password"
+                        id="createAdminPasswordConfirm"
+                        placeholder="Digite novamente a senha"
+                        minlength="8"
+                        autocomplete="new-password"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="createAdminMasterCode">Código mestre</label>
+                    <input
+                        type="password"
+                        id="createAdminMasterCode"
+                        placeholder="Código de segurança"
+                        autocomplete="off"
+                        required
+                    >
+                </div>
+
+                <p class="form-error" id="createAdminError"></p>
+
+                <button
+                    type="submit"
+                    class="primary-button full-button"
+                    id="btnCreateAdmin"
+                >
+                    Criar administrador
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+</body>
+</html>
+
+
+================================================================================
+ARQUIVO: igreja.html
+================================================================================
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Campanha de doações e participantes do Acampamento RENOVO 2026.">
+    <title>Acampamento RENOVO | Doações</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="supabase-config.js"></script>
+    <script defer src="app.js"></script>
+</head>
+
+<body data-page="user">
+    <header class="topbar public-topbar">
+        <div class="topbar-container">
+            <a href="igreja.html" class="brand">
+                <div class="brand-mini-icon">✝</div>
+
+                <div>
+                    <strong>Acampamento RENOVO</strong>
+                    <span>Campanha de Doações • 2026</span>
+                </div>
+            </a>
+
+            <a href="index.html" class="secondary-button">
+                Página inicial
+            </a>
+        </div>
+    </header>
+
+    <main class="page-container">
+        <section class="donation-hero">
+            <div class="hero-content">
+                <span class="hero-tag">♡ ACAMPAMENTO RENOVO 2026</span>
+
+                <h1>
+                    Juntos fazemos
+                    <span>a diferença.</span>
+                </h1>
+
+                <p>
+                    Escolha um item para contribuir com o nosso acampamento.
+                    Informe seu nome e a quantidade que deseja doar.
+                    Você também pode confirmar abaixo quem irá participar.
+                </p>
+            </div>
+        </section>
+
+        <section class="stats-grid public-stats">
+            <article class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div>
+                    <span>Itens cadastrados</span>
+                    <strong id="userStatItens">0</strong>
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon">♡</div>
+                <div>
+                    <span>Total já doado</span>
+                    <strong id="userStatDoado">0</strong>
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div>
+                    <span>Meta total</span>
+                    <strong id="userStatMeta">0</strong>
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon">✓</div>
+                <div>
+                    <span>Metas atingidas</span>
+                    <strong id="userStatConcluidos">0</strong>
+                </div>
+            </article>
+        </section>
+
+        <!-- LISTA DE PARTICIPANTES -->
+        <section class="section-block participantes-section">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">ACAMPAMENTO RENOVO</span>
+                    <h2>Lista de Participantes</h2>
+                    <p>
+                        Vai ao acampamento? Adicione abaixo o nome da pessoa
+                        que irá participar.
+                    </p>
+                </div>
+
+                <div class="participantes-total">
+                    <span>Confirmados</span>
+                    <strong id="totalParticipantes">0</strong>
+                </div>
+            </div>
+
+            <div class="participantes-layout">
+                <article class="panel-card participante-form-card">
+                    <div class="participante-form-icon">🙋</div>
+
+                    <h3>Confirmar presença</h3>
+
+                    <p>
+                        Digite o nome completo de quem irá participar
+                        do Acampamento RENOVO.
+                    </p>
+
+                    <form id="participanteForm">
+                        <div class="form-group">
+                            <label for="participanteNome">Nome completo</label>
+                            <input
+                                type="text"
+                                id="participanteNome"
+                                placeholder="Ex.: João da Silva"
+                                maxlength="100"
+                                required
+                            >
+                        </div>
+
+                        <p class="form-error" id="participanteErro"></p>
+
+                        <button type="submit" class="primary-button full-button">
+                            + Adicionar à lista
+                        </button>
+                    </form>
+                </article>
+
+                <article class="panel-card lista-participantes-card">
+                    <div class="lista-participantes-header">
+                        <div>
+                            <span class="small-label">CONFIRMADOS</span>
+                            <h3>Quem já confirmou presença</h3>
+                        </div>
+
+                        <span class="participante-badge">RENOVO 2026</span>
+                    </div>
+
+                    <div id="listaParticipantes" class="lista-participantes"></div>
+                </article>
+            </div>
+        </section>
+
+        <!-- ITENS PARA DOAÇÃO -->
+        <section class="section-block">
+            <div class="section-heading user-section-heading">
+                <div>
+                    <span class="eyebrow">COMO POSSO AJUDAR?</span>
+                    <h2>Itens que precisamos</h2>
+                    <p>Escolha abaixo o item que você gostaria de doar.</p>
+                </div>
+
+                <div class="search-box">
+                    <span>🔎</span>
+                    <input
+                        type="text"
+                        id="searchItem"
+                        placeholder="Pesquisar item..."
+                    >
+                </div>
+            </div>
+
+            <div id="userItems" class="items-grid"></div>
+        </section>
+    </main>
+
+    <!-- MODAL DE DOAÇÃO -->
+    <div class="modal-overlay" id="donationModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <span class="small-label">REGISTRAR DOAÇÃO</span>
+                    <h2>Quero ajudar</h2>
+                </div>
+
+                <button type="button" class="icon-button" id="closeDonationModal">
+                    ✕
+                </button>
+            </div>
+
+            <div class="selected-item" id="selectedItemInfo"></div>
+
+            <form id="donationForm">
+                <input type="hidden" id="donationItemId">
+
+                <div class="form-group">
+                    <label for="donorName">Seu nome</label>
+                    <input
+                        type="text"
+                        id="donorName"
+                        placeholder="Digite seu nome"
+                        maxlength="100"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="donorQuantity">Quantidade que deseja doar</label>
+                    <input
+                        type="number"
+                        id="donorQuantity"
+                        min="1"
+                        step="1"
+                        placeholder="Ex.: 2"
+                        required
+                    >
+
+                    <small id="quantityHelp"></small>
+                </div>
+
+                <p class="form-error" id="donationError"></p>
+
+                <button type="submit" class="primary-button full-button big-button">
+                    ♡ Confirmar minha doação
+                </button>
+            </form>
+
+            <p class="modal-note">
+                Obrigado por fazer parte deste propósito. ♡
+            </p>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+</body>
+</html>
+
+
+================================================================================
+ARQUIVO: administrador.html
+================================================================================
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Painel administrativo do Acampamento RENOVO 2026.">
+    <title>Administrador | Acampamento RENOVO</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="supabase-config.js"></script>
+    <script defer src="app.js"></script>
+</head>
+
+<body data-page="admin">
+    <header class="topbar">
+        <div class="topbar-container">
+            <a href="administrador.html" class="brand">
+                <div class="brand-mini-icon">✝</div>
+
+                <div>
+                    <strong>Acampamento RENOVO</strong>
+                    <span>Painel Administrativo • 2026</span>
+                </div>
+            </a>
+
+            <div class="topbar-actions">
+                <a href="igreja.html" class="secondary-button">
+                    Ver página pública
+                </a>
+
+                <button
+                    type="button"
+                    class="secondary-button"
+                    id="btnMinhaConta"
+                >
+                    Minha conta
+                </button>
+
+                <button class="danger-outline-button" id="logoutAdmin">
+                    Sair
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="page-container">
+        <section class="page-hero">
+            <div>
+                <span class="eyebrow">ADMINISTRAÇÃO</span>
+                <h1>Painel do Acampamento RENOVO</h1>
+                <p>
+                    Cadastre os itens necessários, acompanhe as doações
+                    e gerencie os participantes.
+                </p>
+            </div>
+        </section>
+
+        <section class="stats-grid">
+            <article class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div>
+                    <span>Itens cadastrados</span>
+                    <strong id="statItens">0</strong>
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div>
+                    <span>Quantidade necessária</span>
+                    <strong id="statMeta">0</strong>
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon">♡</div>
+                <div>
+                    <span>Total doado</span>
+                    <strong id="statDoado">0</strong>
+                </div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-icon">✓</div>
+                <div>
+                    <span>Metas concluídas</span>
+                    <strong id="statConcluidos">0</strong>
+                </div>
+            </article>
+        </section>
+
+        <section class="admin-layout">
+            <article class="panel-card cadastro-card">
+                <div class="panel-header">
+                    <div>
+                        <span class="small-label">NOVO ITEM</span>
+                        <h2>Adicionar item para doação</h2>
+                    </div>
+
+                    <div class="panel-icon">＋</div>
+                </div>
+
+                <form id="itemForm">
+                    <div class="form-group">
+                        <label for="itemNome">Nome do item</label>
+                        <input
+                            type="text"
+                            id="itemNome"
+                            placeholder="Ex.: Arroz"
+                            maxlength="100"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="itemDescricao">Descrição</label>
+                        <textarea
+                            id="itemDescricao"
+                            placeholder="Ex.: Pacote de arroz de 5 kg"
+                            maxlength="250"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="itemQuantidade">Quantidade necessária</label>
+                        <input
+                            type="number"
+                            id="itemQuantidade"
+                            min="1"
+                            step="1"
+                            placeholder="Ex.: 30"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="primary-button full-button">
+                        + Adicionar item
+                    </button>
+                </form>
+            </article>
+
+            <article class="panel-card info-card">
+                <span class="small-label">CAMPANHA</span>
+                <h2>Como funciona?</h2>
+
+                <div class="info-list">
+                    <div class="info-item">
+                        <span>1</span>
+                        <p>Cadastre o produto e a quantidade necessária.</p>
+                    </div>
+
+                    <div class="info-item">
+                        <span>2</span>
+                        <p>O item aparece para todos que abrirem o site.</p>
+                    </div>
+
+                    <div class="info-item">
+                        <span>3</span>
+                        <p>O doador informa nome e quantidade.</p>
+                    </div>
+
+                    <div class="info-item">
+                        <span>4</span>
+                        <p>O Supabase salva tudo e atualiza o progresso da campanha.</p>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <section class="section-block">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">ITENS</span>
+                    <h2>Itens da campanha</h2>
+                </div>
+
+                <button class="danger-outline-button" id="limparTodos">
+                    Excluir todos os itens
+                </button>
+            </div>
+
+            <div class="items-grid" id="adminItems"></div>
+        </section>
+
+        <!-- PARTICIPANTES -->
+        <section class="section-block">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">ACAMPAMENTO RENOVO</span>
+                    <h2>Lista de Participantes</h2>
+                    <p>Pessoas que confirmaram presença no acampamento.</p>
+                </div>
+
+                <div class="participantes-total">
+                    <span>Total confirmado</span>
+                    <strong id="adminTotalParticipantes">0</strong>
+                </div>
+            </div>
+
+            <article class="panel-card">
+                <div id="adminListaParticipantes" class="admin-participantes-list"></div>
+            </article>
+        </section>
+
+        <!-- HISTÓRICO -->
+        <section class="section-block">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">MOVIMENTAÇÕES</span>
+                    <h2>Últimas doações</h2>
+                </div>
+            </div>
+
+            <article class="panel-card">
+                <div class="history-list" id="donationHistory"></div>
+            </article>
+        </section>
+    </main>
+
+    <!-- MODAL MINHA CONTA / ALTERAR SENHA -->
+    <div class="modal-overlay" id="accountModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <span class="small-label">MINHA CONTA</span>
+                    <h2>Alterar senha</h2>
+                </div>
+
+                <button
+                    type="button"
+                    class="icon-button"
+                    id="closeAccountModal"
+                    aria-label="Fechar"
+                >
+                    ✕
+                </button>
+            </div>
+
+            <div class="account-user-info">
+                <span>Administrador conectado</span>
+                <strong id="accountEmail">-</strong>
+            </div>
+
+            <form id="changePasswordForm">
+                <div class="form-group">
+                    <label for="currentPassword">Senha atual</label>
+                    <input
+                        type="password"
+                        id="currentPassword"
+                        autocomplete="current-password"
+                        placeholder="Digite sua senha atual"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="newPassword">Nova senha</label>
+                    <input
+                        type="password"
+                        id="newPassword"
+                        autocomplete="new-password"
+                        minlength="8"
+                        placeholder="Mínimo de 8 caracteres"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmNewPassword">Confirmar nova senha</label>
+                    <input
+                        type="password"
+                        id="confirmNewPassword"
+                        autocomplete="new-password"
+                        minlength="8"
+                        placeholder="Digite novamente a nova senha"
+                        required
+                    >
+                </div>
+
+                <p class="form-error" id="changePasswordError"></p>
+
+                <button
+                    type="submit"
+                    class="primary-button full-button"
+                    id="btnChangePassword"
+                >
+                    Salvar nova senha
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+</body>
+</html>
+
+
+================================================================================
+ARQUIVO: app.js
+================================================================================
+
+/* =========================================================
+   ACAMPAMENTO RENOVO
+   Aplicação conectada ao Supabase
+========================================================= */
+
+/* =========================================================
+   LOGIN TEMPORÁRIO PARA TESTES
+   IMPORTANTE:
+   - Esse acesso fica visível no código público do GitHub.
+   - Use somente durante os testes.
+   - Para voltar ao login real do Supabase, altere
+     TEST_ADMIN_MODE para false.
+========================================================= */
+
+const TEST_ADMIN_MODE = true;
+
+const TEST_ADMIN_EMAIL =
+    "victornascimento311@gmail.com";
+
+const TEST_ADMIN_PASSWORD =
+    "terrao";
+
+
+let toastTimeout;
+let currentItems = [];
+let currentParticipants = [];
+let realtimeChannel = null;
+let refreshTimer = null;
+let isRefreshing = false;
+
+
+/* =========================================================
+   INICIALIZAÇÃO
+========================================================= */
+
+document.addEventListener("DOMContentLoaded", async () => {
+    if (!window.supabaseClient) {
+        console.error("Supabase não foi carregado.");
+        alert(
+            "Não foi possível conectar ao banco de dados. " +
+            "Verifique o arquivo supabase-config.js."
+        );
+        return;
+    }
+
+    const page = document.body.dataset.page;
+
+    try {
+        if (page === "login") {
+            await initLogin();
+        }
+
+        if (page === "admin") {
+            await initAdmin();
+        }
+
+        if (page === "user") {
+            await initUser();
+        }
+
+        if (page === "reset-password") {
+            await initResetPassword();
+        }
+    } catch (error) {
+        console.error("Erro ao iniciar a aplicação:", error);
+        showToast("Ocorreu um erro ao carregar o sistema.");
+    }
+});
+
+
+/* =========================================================
+   UTILITÁRIOS
+========================================================= */
+
+function escapeHTML(value) {
+    if (value === null || value === undefined) {
+        return "";
+    }
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+function formatDate(value) {
+    if (!value) {
+        return "";
+    }
+
+    const date = new Date(value);
+
+    return date.toLocaleString("pt-BR", {
+        dateStyle: "short",
+        timeStyle: "short"
+    });
+}
+
+
+function showToast(message) {
+    const toast = document.getElementById("toast");
+
+    if (!toast) {
+        return;
+    }
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    clearTimeout(toastTimeout);
+
+    toastTimeout = setTimeout(() => {
+        toast.classList.remove("show");
+    }, 3500);
+}
+
+
+function calculatePercentage(item) {
+    if (!item || !item.meta) {
+        return 0;
+    }
+
+    return Math.min(
+        100,
+        Math.round((Number(item.doado || 0) / Number(item.meta)) * 100)
+    );
+}
+
+
+function getRemaining(item) {
+    return Math.max(
+        0,
+        Number(item.meta || 0) - Number(item.doado || 0)
+    );
+}
+
+
+function setButtonLoading(button, loading, normalText, loadingText = "Aguarde...") {
+    if (!button) {
+        return;
+    }
+
+    button.disabled = loading;
+    button.textContent = loading ? loadingText : normalText;
+}
+
+
+function friendlyDatabaseError(error, fallback) {
+    console.error(error);
+
+    if (!error) {
+        return fallback;
+    }
+
+    if (error.code === "23505") {
+        return "Esse nome já está cadastrado.";
+    }
+
+    if (error.message && error.message.includes("Quantidade maior")) {
+        return error.message;
+    }
+
+    return fallback;
+}
+
+
+/* =========================================================
+   AUTENTICAÇÃO
+========================================================= */
+
+async function isCurrentUserAdmin() {
+    const {
+        data: { session },
+        error: sessionError
+    } = await window.supabaseClient.auth.getSession();
+
+    if (sessionError || !session) {
+        return false;
+    }
+
+    const { data, error } =
+        await window.supabaseClient.rpc("eh_administrador");
+
+    if (error) {
+        console.error("Erro ao verificar administrador:", error);
+        return false;
+    }
+
+    return data === true;
+}
+
+
+async function initLogin() {
+    const btnDoar = document.getElementById("btnDoar");
+    const btnAdmin = document.getElementById("btnAdmin");
+    const areaLogin = document.getElementById("areaLogin");
+    const btnFechar = document.getElementById("btnFechar");
+    const formLogin = document.getElementById("formLogin");
+    const emailInput = document.getElementById("adminEmail");
+    const passwordInput = document.getElementById("senha");
+    const btnMostrarSenha = document.getElementById("btnMostrarSenha");
+    const erroLogin = document.getElementById("erroLogin");
+    const btnEntrar = document.getElementById("btnEntrar");
+    const btnEsqueciSenha = document.getElementById("btnEsqueciSenha");
+    const secretHeart = document.getElementById("secretAdminHeart");
+    const createAdminModal = document.getElementById("createAdminModal");
+    const closeCreateAdminModal = document.getElementById("closeCreateAdminModal");
+    const createAdminForm = document.getElementById("createAdminForm");
+
+    let secretHeartClicks = 0;
+    let secretHeartTimer = null;
+
+    btnDoar?.addEventListener("click", () => {
+        window.location.href = "igreja.html";
+    });
+
+    /* =====================================================
+       CADASTRO SECRETO DE ADMINISTRADOR
+       10 CLIQUES NO CORAÇÃO EM ATÉ 6 SEGUNDOS
+    ===================================================== */
+
+    const closeCreateAdmin = () => {
+        createAdminModal?.classList.remove("show");
+        createAdminForm?.reset();
+
+        const errorElement =
+            document.getElementById("createAdminError");
+
+        if (errorElement) {
+            errorElement.textContent = "";
+        }
+
+        document.body.style.overflow = "";
+    };
+
+    secretHeart?.addEventListener("click", () => {
+        secretHeartClicks += 1;
+
+        clearTimeout(secretHeartTimer);
+
+        secretHeartTimer = setTimeout(() => {
+            secretHeartClicks = 0;
+        }, 6000);
+
+        if (secretHeartClicks < 10) {
+            return;
+        }
+
+        secretHeartClicks = 0;
+        clearTimeout(secretHeartTimer);
+
+        createAdminModal?.classList.add("show");
+        document.body.style.overflow = "hidden";
+
+        setTimeout(() => {
+            document
+                .getElementById("createAdminEmail")
+                ?.focus();
+        }, 100);
+    });
+
+    closeCreateAdminModal?.addEventListener(
+        "click",
+        closeCreateAdmin
+    );
+
+    createAdminModal?.addEventListener("click", (event) => {
+        if (event.target === createAdminModal) {
+            closeCreateAdmin();
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && createAdminModal?.classList.contains("show")) {
+            closeCreateAdmin();
+        }
+    });
+
+    createAdminForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const email =
+            document.getElementById("createAdminEmail").value.trim();
+
+        const password =
+            document.getElementById("createAdminPassword").value;
+
+        const passwordConfirm =
+            document.getElementById("createAdminPasswordConfirm").value;
+
+        const setupCode =
+            document.getElementById("createAdminMasterCode").value;
+
+        const errorElement =
+            document.getElementById("createAdminError");
+
+        const button =
+            document.getElementById("btnCreateAdmin");
+
+        errorElement.textContent = "";
+
+        if (!email) {
+            errorElement.textContent = "Informe um e-mail válido.";
+            return;
+        }
+
+        if (password.length < 8) {
+            errorElement.textContent =
+                "A senha precisa ter pelo menos 8 caracteres.";
+            return;
+        }
+
+        if (password !== passwordConfirm) {
+            errorElement.textContent =
+                "As duas senhas não são iguais.";
+            return;
+        }
+
+        if (!setupCode) {
+            errorElement.textContent =
+                "Informe o código mestre.";
+            return;
+        }
+
+        setButtonLoading(
+            button,
+            true,
+            "Criar administrador",
+            "Criando..."
+        );
+
+        const { data, error } =
+            await window.supabaseClient.functions.invoke(
+                "criar-admin",
+                {
+                    body: {
+                        email,
+                        password,
+                        setupCode
+                    }
+                }
+            );
+
+        setButtonLoading(
+            button,
+            false,
+            "Criar administrador"
+        );
+
+        if (error) {
+            console.error("Erro da Edge Function:", error);
+
+            let message =
+                "Não foi possível criar o administrador.";
+
+            try {
+                const payload =
+                    await error.context?.json?.();
+
+                if (payload?.message) {
+                    message = payload.message;
+                }
+            } catch (_) {
+                // Usa a mensagem padrão.
+            }
+
+            errorElement.textContent = message;
+            return;
+        }
+
+        if (!data?.success) {
+            errorElement.textContent =
+                data?.message ||
+                "Não foi possível criar o administrador.";
+            return;
+        }
+
+        closeCreateAdmin();
+
+        showToast(
+            "Administrador criado com sucesso! Já é possível entrar com o novo e-mail e senha."
+        );
+    });
+
+    btnAdmin?.addEventListener("click", async () => {
+        const admin = await isCurrentUserAdmin();
+
+        if (admin) {
+            window.location.href = "administrador.html";
+            return;
+        }
+
+        areaLogin?.classList.add("show");
+        erroLogin.textContent = "";
+
+        setTimeout(() => {
+            emailInput?.focus();
+        }, 100);
+
+        areaLogin?.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+    });
+
+    btnFechar?.addEventListener("click", () => {
+        areaLogin?.classList.remove("show");
+        erroLogin.textContent = "";
+        passwordInput.value = "";
+    });
+
+    btnMostrarSenha?.addEventListener("click", () => {
+        const showing = passwordInput.type === "text";
+
+        passwordInput.type = showing ? "password" : "text";
+        btnMostrarSenha.textContent = showing ? "Mostrar" : "Ocultar";
+    });
+
+    btnEsqueciSenha?.addEventListener("click", async () => {
+        const email = emailInput.value.trim();
+
+        if (!email) {
+            erroLogin.textContent =
+                "Digite primeiro o e-mail do administrador para receber o link.";
+            emailInput.focus();
+            return;
+        }
+
+        erroLogin.textContent = "";
+
+        setButtonLoading(
+            btnEsqueciSenha,
+            true,
+            "Esqueci minha senha",
+            "Enviando..."
+        );
+
+        const redirectTo =
+            "https://victornascimentodiniz.github.io/Acampamento_RENOVO/redefinir-senha.html";
+
+        const { error } =
+            await window.supabaseClient.auth.resetPasswordForEmail(
+                email,
+                { redirectTo }
+            );
+
+        setButtonLoading(
+            btnEsqueciSenha,
+            false,
+            "Esqueci minha senha"
+        );
+
+        if (error) {
+            console.error(error);
+            erroLogin.textContent =
+                "Não foi possível enviar o e-mail de recuperação. Tente novamente.";
+            return;
+        }
+
+        showToast(
+            "E-mail de recuperação enviado. Confira também a caixa de spam."
+        );
+    });
+
+    formLogin?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        erroLogin.textContent = "";
+
+        /*
+         * =====================================================
+         * LOGIN TEMPORÁRIO PARA TESTES
+         * =====================================================
+         */
+        if (TEST_ADMIN_MODE) {
+            if (
+                email === TEST_ADMIN_EMAIL &&
+                password === TEST_ADMIN_PASSWORD
+            ) {
+                sessionStorage.setItem(
+                    "adminTeste",
+                    "true"
+                );
+
+                sessionStorage.setItem(
+                    "adminTesteEmail",
+                    TEST_ADMIN_EMAIL
+                );
+
+                window.location.href =
+                    "administrador.html";
+
+                return;
+            }
+
+            erroLogin.textContent =
+                "E-mail ou senha de teste incorretos.";
+
+            passwordInput.select();
+
+            return;
+        }
+
+        /*
+         * =====================================================
+         * LOGIN REAL DO SUPABASE
+         * =====================================================
+         */
+        if (!email || !password) {
+            erroLogin.textContent =
+                "Informe o e-mail e a senha.";
+
+            return;
+        }
+
+        setButtonLoading(
+            btnEntrar,
+            true,
+            "Entrar no painel",
+            "Entrando..."
+        );
+
+        const { error: loginError } =
+            await window.supabaseClient.auth.signInWithPassword({
+                email,
+                password
+            });
+
+        if (loginError) {
+            erroLogin.textContent =
+                "E-mail ou senha incorretos. Confira o usuário criado no Supabase.";
+
+            setButtonLoading(
+                btnEntrar,
+                false,
+                "Entrar no painel"
+            );
+
+            passwordInput.select();
+
+            return;
+        }
+
+        const admin =
+            await isCurrentUserAdmin();
+
+        if (!admin) {
+            await window.supabaseClient.auth.signOut();
+
+            erroLogin.textContent =
+                "Este usuário existe, mas não está cadastrado como administrador.";
+
+            setButtonLoading(
+                btnEntrar,
+                false,
+                "Entrar no painel"
+            );
+
+            return;
+        }
+
+        window.location.href =
+            "administrador.html";
+    });
+
+}
+
+
+/* =========================================================
+   CONSULTAS AO BANCO
+========================================================= */
+
+async function fetchItemsWithDonations() {
+    const [
+        { data: itemRows, error: itemsError },
+        { data: donationRows, error: donationsError }
+    ] = await Promise.all([
+        window.supabaseClient
+            .from("itens")
+            .select("*")
+            .eq("ativo", true)
+            .order("criado_em", { ascending: false }),
+
+        window.supabaseClient
+            .from("doacoes")
+            .select("*")
+            .order("criado_em", { ascending: false })
+    ]);
+
+    if (itemsError) {
+        throw itemsError;
+    }
+
+    if (donationsError) {
+        throw donationsError;
+    }
+
+    const donationsByItem = new Map();
+
+    for (const row of donationRows || []) {
+        if (!donationsByItem.has(row.item_id)) {
+            donationsByItem.set(row.item_id, []);
+        }
+
+        donationsByItem.get(row.item_id).push({
+            id: row.id,
+            nome: row.nome_doador,
+            quantidade: Number(row.quantidade),
+            data: row.criado_em
+        });
+    }
+
+    return (itemRows || []).map((row) => {
+        const doacoes = donationsByItem.get(row.id) || [];
+
+        const doado = doacoes.reduce(
+            (total, donation) =>
+                total + Number(donation.quantidade || 0),
+            0
+        );
+
+        return {
+            id: row.id,
+            nome: row.nome,
+            descricao: row.descricao || "",
+            meta: Number(row.quantidade_necessaria),
+            doado,
+            ativo: row.ativo,
+            criadoEm: row.criado_em,
+            doacoes
+        };
+    });
+}
+
+
+async function fetchParticipants() {
+    const { data, error } =
+        await window.supabaseClient
+            .from("participantes")
+            .select("*")
+            .order("criado_em", { ascending: true });
+
+    if (error) {
+        throw error;
+    }
+
+    return (data || []).map((row) => ({
+        id: row.id,
+        nome: row.nome,
+        data: row.criado_em
+    }));
+}
+
+
+/* =========================================================
+   ATUALIZAÇÃO AUTOMÁTICA
+========================================================= */
+
+function startLiveUpdates(page) {
+    stopLiveUpdates();
+
+    const refresh = async () => {
+        if (document.hidden || isRefreshing) {
+            return;
+        }
+
+        isRefreshing = true;
+
+        try {
+            if (page === "admin") {
+                await refreshAdminData();
+            }
+
+            if (page === "user") {
+                await refreshUserData();
+            }
+        } catch (error) {
+            console.error("Falha na atualização automática:", error);
+        } finally {
+            isRefreshing = false;
+        }
+    };
+
+    realtimeChannel =
+        window.supabaseClient
+            .channel(`renovo-${page}-${Date.now()}`)
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "itens"
+                },
+                refresh
+            )
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "doacoes"
+                },
+                refresh
+            )
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "participantes"
+                },
+                refresh
+            )
+            .subscribe();
+
+    /*
+     * Mesmo que o Realtime ainda não esteja habilitado no painel,
+     * este timer mantém as páginas sincronizadas periodicamente.
+     */
+    refreshTimer = setInterval(refresh, 30000);
+
+    document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+            refresh();
+        }
+    });
+}
+
+
+function stopLiveUpdates() {
+    if (refreshTimer) {
+        clearInterval(refreshTimer);
+        refreshTimer = null;
+    }
+
+    if (realtimeChannel) {
+        window.supabaseClient.removeChannel(realtimeChannel);
+        realtimeChannel = null;
+    }
+}
+
+
+/* =========================================================
+   ADMINISTRADOR
+========================================================= */
+
+async function initAdmin() {
+    const adminTeste =
+        sessionStorage.getItem("adminTeste") === "true";
+
+    /*
+     * Se o modo temporário estiver ativo e o login de teste
+     * tiver sido validado, permite abrir o painel.
+     */
+    if (TEST_ADMIN_MODE && adminTeste) {
+        console.warn(
+            "Modo de administrador temporário ativo."
+        );
+    } else {
+        const admin =
+            await isCurrentUserAdmin();
+
+        if (!admin) {
+            await window.supabaseClient.auth.signOut();
+            window.location.href = "index.html";
+            return;
+        }
+    }
+
+    const itemForm = document.getElementById("itemForm");
+    const adminItems = document.getElementById("adminItems");
+    const logoutAdmin = document.getElementById("logoutAdmin");
+    const limparTodos = document.getElementById("limparTodos");
+    const participantsContainer =
+        document.getElementById("adminListaParticipantes");
+
+    const btnMinhaConta =
+        document.getElementById("btnMinhaConta");
+    const accountModal =
+        document.getElementById("accountModal");
+    const closeAccountModal =
+        document.getElementById("closeAccountModal");
+    const changePasswordForm =
+        document.getElementById("changePasswordForm");
+    const accountEmail =
+        document.getElementById("accountEmail");
+
+    if (TEST_ADMIN_MODE && adminTeste) {
+        if (btnMinhaConta) {
+            btnMinhaConta.style.display = "none";
+        }
+
+        setTimeout(() => {
+            showToast(
+                "Modo de teste ativo. O login é temporário; ações protegidas pelo Supabase podem ser bloqueadas pelo RLS."
+            );
+        }, 300);
+    }
+
+    itemForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const nome =
+            document.getElementById("itemNome").value.trim();
+
+        const descricao =
+            document.getElementById("itemDescricao").value.trim();
+
+        const quantidade =
+            Number(document.getElementById("itemQuantidade").value);
+
+        if (!nome || !Number.isInteger(quantidade) || quantidade <= 0) {
+            showToast("Preencha corretamente o nome e a quantidade.");
+            return;
+        }
+
+        const submitButton =
+            itemForm.querySelector('button[type="submit"]');
+
+        setButtonLoading(
+            submitButton,
+            true,
+            "+ Adicionar item",
+            "Salvando..."
+        );
+
+        const { error } =
+            await window.supabaseClient
+                .from("itens")
+                .insert({
+                    nome,
+                    descricao: descricao || null,
+                    quantidade_necessaria: quantidade,
+                    ativo: true
+                });
+
+        setButtonLoading(
+            submitButton,
+            false,
+            "+ Adicionar item"
+        );
+
+        if (error) {
+            if (TEST_ADMIN_MODE && adminTeste) {
+                showToast(
+                    "O painel abriu no modo de teste, mas o Supabase bloqueou o cadastro porque não existe uma sessão real de administrador."
+                );
+            } else {
+                showToast(
+                    friendlyDatabaseError(
+                        error,
+                        "Não foi possível adicionar o item."
+                    )
+                );
+            }
+
+            console.error(error);
+            return;
+        }
+
+        itemForm.reset();
+
+        await refreshAdminData();
+
+        showToast("Item adicionado e salvo no Supabase!");
+    });
+
+    adminItems?.addEventListener("click", async (event) => {
+        const button =
+            event.target.closest("[data-delete-item]");
+
+        if (!button) {
+            return;
+        }
+
+        const item =
+            currentItems.find(
+                (value) => value.id === button.dataset.deleteItem
+            );
+
+        if (!item) {
+            return;
+        }
+
+        const confirmed =
+            confirm(
+                `Excluir "${item.nome}"? ` +
+                "As doações ligadas a esse item também serão excluídas."
+            );
+
+        if (!confirmed) {
+            return;
+        }
+
+        button.disabled = true;
+
+        const { error } =
+            await window.supabaseClient
+                .from("itens")
+                .delete()
+                .eq("id", item.id);
+
+        if (error) {
+            button.disabled = false;
+            showToast("Não foi possível excluir o item.");
+            console.error(error);
+            return;
+        }
+
+        await refreshAdminData();
+
+        showToast("Item excluído.");
+    });
+
+    participantsContainer?.addEventListener("click", async (event) => {
+        const button =
+            event.target.closest("[data-remove-participant]");
+
+        if (!button) {
+            return;
+        }
+
+        const participant =
+            currentParticipants.find(
+                (value) =>
+                    value.id === button.dataset.removeParticipant
+            );
+
+        if (!participant) {
+            return;
+        }
+
+        const confirmed =
+            confirm(
+                `Remover "${participant.nome}" da lista de participantes?`
+            );
+
+        if (!confirmed) {
+            return;
+        }
+
+        button.disabled = true;
+
+        const { error } =
+            await window.supabaseClient
+                .from("participantes")
+                .delete()
+                .eq("id", participant.id);
+
+        if (error) {
+            button.disabled = false;
+            showToast("Não foi possível excluir o participante.");
+            console.error(error);
+            return;
+        }
+
+        await refreshAdminData();
+
+        showToast("Participante removido.");
+    });
+
+    limparTodos?.addEventListener("click", async () => {
+        if (currentItems.length === 0) {
+            showToast("Não existem itens cadastrados.");
+            return;
+        }
+
+        const confirmed =
+            confirm(
+                "Tem certeza que deseja excluir TODOS os itens " +
+                "e todas as doações relacionadas?"
+            );
+
+        if (!confirmed) {
+            return;
+        }
+
+        const ids = currentItems.map((item) => item.id);
+
+        limparTodos.disabled = true;
+        limparTodos.textContent = "Excluindo...";
+
+        const { error } =
+            await window.supabaseClient
+                .from("itens")
+                .delete()
+                .in("id", ids);
+
+        limparTodos.disabled = false;
+        limparTodos.textContent = "Excluir todos os itens";
+
+        if (error) {
+            showToast("Não foi possível excluir todos os itens.");
+            console.error(error);
+            return;
+        }
+
+        await refreshAdminData();
+
+        showToast("Todos os itens e suas doações foram excluídos.");
+    });
+
+    btnMinhaConta?.addEventListener("click", async () => {
+        const {
+            data: { user }
+        } = await window.supabaseClient.auth.getUser();
+
+        if (accountEmail) {
+            accountEmail.textContent = user?.email || "-";
+        }
+
+        accountModal?.classList.add("show");
+        document.body.style.overflow = "hidden";
+    });
+
+    closeAccountModal?.addEventListener("click", () => {
+        closeAccountPasswordModal();
+    });
+
+    accountModal?.addEventListener("click", (event) => {
+        if (event.target === accountModal) {
+            closeAccountPasswordModal();
+        }
+    });
+
+    changePasswordForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const currentPassword =
+            document.getElementById("currentPassword").value;
+
+        const newPassword =
+            document.getElementById("newPassword").value;
+
+        const confirmPassword =
+            document.getElementById("confirmNewPassword").value;
+
+        const errorElement =
+            document.getElementById("changePasswordError");
+
+        const submitButton =
+            document.getElementById("btnChangePassword");
+
+        errorElement.textContent = "";
+
+        if (newPassword.length < 8) {
+            errorElement.textContent =
+                "A nova senha precisa ter pelo menos 8 caracteres.";
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            errorElement.textContent =
+                "A confirmação da nova senha não confere.";
+            return;
+        }
+
+        if (currentPassword === newPassword) {
+            errorElement.textContent =
+                "Escolha uma senha diferente da senha atual.";
+            return;
+        }
+
+        setButtonLoading(
+            submitButton,
+            true,
+            "Salvar nova senha",
+            "Salvando..."
+        );
+
+        const { error } =
+            await window.supabaseClient.auth.updateUser({
+                password: newPassword,
+                current_password: currentPassword
+            });
+
+        setButtonLoading(
+            submitButton,
+            false,
+            "Salvar nova senha"
+        );
+
+        if (error) {
+            console.error(error);
+
+            const message =
+                (error.message || "").toLowerCase();
+
+            if (
+                message.includes("password") ||
+                message.includes("credential") ||
+                message.includes("invalid")
+            ) {
+                errorElement.textContent =
+                    "A senha atual está incorreta ou a nova senha não atende aos requisitos.";
+            } else {
+                errorElement.textContent =
+                    "Não foi possível alterar a senha. Tente novamente.";
+            }
+
+            return;
+        }
+
+        closeAccountPasswordModal();
+
+        showToast(
+            "Senha alterada com sucesso!"
+        );
+    });
+
+    logoutAdmin?.addEventListener("click", async () => {
+        sessionStorage.removeItem("adminTeste");
+        sessionStorage.removeItem("adminTesteEmail");
+
+        await window.supabaseClient.auth.signOut();
+
+        window.location.href = "index.html";
+    });
+
+    await refreshAdminData();
+
+    startLiveUpdates("admin");
+}
+
+
+async function refreshAdminData() {
+    const [items, participants] =
+        await Promise.all([
+            fetchItemsWithDonations(),
+            fetchParticipants()
+        ]);
+
+    currentItems = items;
+    currentParticipants = participants;
+
+    renderAdminStats(currentItems);
+    renderAdminItems(currentItems);
+    renderDonationHistory(currentItems);
+    renderParticipantsAdmin(currentParticipants);
+}
+
+
+function renderAdminStats(items) {
+    const totalItems = items.length;
+
+    const totalTarget =
+        items.reduce(
+            (sum, item) => sum + Number(item.meta || 0),
+            0
+        );
+
+    const totalDonated =
+        items.reduce(
+            (sum, item) => sum + Number(item.doado || 0),
+            0
+        );
+
+    const completed =
+        items.filter(
+            (item) =>
+                Number(item.doado) >= Number(item.meta)
+        ).length;
+
+    setText("statItens", totalItems);
+    setText("statMeta", totalTarget);
+    setText("statDoado", totalDonated);
+    setText("statConcluidos", completed);
+}
+
+
+function setText(id, value) {
+    const element = document.getElementById(id);
+
+    if (element) {
+        element.textContent = value;
+    }
+}
+
+
+function renderAdminItems(items) {
+    const container = document.getElementById("adminItems");
+
+    if (!container) {
+        return;
+    }
+
+    if (items.length === 0) {
+        container.innerHTML =
+            emptyStateHTML(
+                "📦",
+                "Nenhum item cadastrado",
+                "Use o formulário acima para cadastrar o primeiro item."
+            );
+
+        return;
+    }
+
+    container.innerHTML =
+        items.map(createAdminItemCard).join("");
+}
+
+
+function createAdminItemCard(item) {
+    const percentage = calculatePercentage(item);
+    const remaining = getRemaining(item);
+    const completed = remaining === 0;
+
+    const lastDonors =
+        [...(item.doacoes || [])]
+            .sort(
+                (a, b) =>
+                    new Date(b.data) - new Date(a.data)
+            )
+            .slice(0, 3);
+
+    const donorHTML =
+        lastDonors.length
+            ? `
+                <div class="donors-preview">
+                    <p class="donors-preview-title">
+                        ÚLTIMOS DOADORES
+                    </p>
+
+                    ${lastDonors
+                        .map(
+                            (donation) => `
+                                <div class="donor-mini">
+                                    <span>
+                                        ${escapeHTML(donation.nome)}
+                                    </span>
+
+                                    <strong>
+                                        +${donation.quantidade}
+                                    </strong>
+                                </div>
+                            `
+                        )
+                        .join("")}
+                </div>
+            `
+            : "";
+
+    return `
+        <article class="item-card ${completed ? "completed" : ""}">
+            <div class="item-top">
+                <div class="item-icon">📦</div>
+
+                <span class="item-status ${completed ? "completed-status" : ""}">
+                    ${completed ? "META ATINGIDA" : "EM ANDAMENTO"}
+                </span>
+            </div>
+
+            <h3>${escapeHTML(item.nome)}</h3>
+
+            <p class="item-description">
+                ${
+                    escapeHTML(item.descricao) ||
+                    "Item necessário para o Acampamento RENOVO."
+                }
+            </p>
+
+            <div class="progress-info">
+                <span>Progresso</span>
+                <strong>${percentage}%</strong>
+            </div>
+
+            <div class="progress-track">
+                <div
+                    class="progress-bar"
+                    style="width: ${percentage}%"
+                ></div>
+            </div>
+
+            <div class="item-numbers">
+                <div class="item-number">
+                    <span>META</span>
+                    <strong>${item.meta}</strong>
+                </div>
+
+                <div class="item-number">
+                    <span>DOADO</span>
+                    <strong>${item.doado}</strong>
+                </div>
+
+                <div class="item-number">
+                    <span>FALTAM</span>
+                    <strong>${remaining}</strong>
+                </div>
+            </div>
+
+            ${donorHTML}
+
+            <div class="item-actions">
+                <button
+                    class="danger-outline-button"
+                    data-delete-item="${item.id}"
+                >
+                    Excluir item
+                </button>
+            </div>
+        </article>
+    `;
+}
+
+
+function renderDonationHistory(items) {
+    const container =
+        document.getElementById("donationHistory");
+
+    if (!container) {
+        return;
+    }
+
+    const history = [];
+
+    for (const item of items) {
+        for (const donation of item.doacoes || []) {
+            history.push({
+                ...donation,
+                itemNome: item.nome
+            });
+        }
+    }
+
+    history.sort(
+        (a, b) =>
+            new Date(b.data) - new Date(a.data)
+    );
+
+    if (history.length === 0) {
+        container.innerHTML =
+            emptyStateHTML(
+                "♡",
+                "Nenhuma doação ainda",
+                "Quando uma doação for registrada, ela aparecerá aqui."
+            );
+
+        return;
+    }
+
+    container.innerHTML =
+        history
+            .slice(0, 50)
+            .map((donation) => {
+                const initial =
+                    escapeHTML(
+                        donation.nome
+                            .charAt(0)
+                            .toUpperCase()
+                    );
+
+                return `
+                    <div class="history-row">
+                        <div class="history-avatar">
+                            ${initial}
+                        </div>
+
+                        <div class="history-person">
+                            <strong>
+                                ${escapeHTML(donation.nome)}
+                            </strong>
+
+                            <span>
+                                ${formatDate(donation.data)}
+                            </span>
+                        </div>
+
+                        <div class="history-item">
+                            ${escapeHTML(donation.itemNome)}
+                        </div>
+
+                        <span class="history-quantity">
+                            +${donation.quantidade}
+                        </span>
+                    </div>
+                `;
+            })
+            .join("");
+}
+
+
+function renderParticipantsAdmin(participants) {
+    const container =
+        document.getElementById("adminListaParticipantes");
+
+    const total =
+        document.getElementById("adminTotalParticipantes");
+
+    if (!container || !total) {
+        return;
+    }
+
+    total.textContent = participants.length;
+
+    if (participants.length === 0) {
+        container.innerHTML =
+            emptyStateHTML(
+                "👥",
+                "Nenhum participante confirmado",
+                "Os nomes adicionados na página pública aparecerão aqui."
+            );
+
+        return;
+    }
+
+    container.innerHTML =
+        participants
+            .map(
+                (participant, index) => `
+                    <div class="admin-participante-row">
+                        <div class="admin-participante-numero">
+                            ${index + 1}
+                        </div>
+
+                        <div class="admin-participante-info">
+                            <strong>
+                                ${escapeHTML(participant.nome)}
+                            </strong>
+
+                            <span>
+                                Confirmado em
+                                ${formatDate(participant.data)}
+                            </span>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="remover-participante"
+                            data-remove-participant="${participant.id}"
+                        >
+                            Excluir
+                        </button>
+                    </div>
+                `
+            )
+            .join("");
+}
+
+
+function closeAccountPasswordModal() {
+    const modal =
+        document.getElementById("accountModal");
+
+    const form =
+        document.getElementById("changePasswordForm");
+
+    const error =
+        document.getElementById("changePasswordError");
+
+    modal?.classList.remove("show");
+    document.body.style.overflow = "";
+
+    form?.reset();
+
+    if (error) {
+        error.textContent = "";
+    }
+}
+
+
+/* =========================================================
+   RECUPERAÇÃO DE SENHA
+========================================================= */
+
+async function initResetPassword() {
+    const loading =
+        document.getElementById("resetLoading");
+
+    const form =
+        document.getElementById("resetPasswordForm");
+
+    const errorElement =
+        document.getElementById("resetPasswordError");
+
+    const showFormIfSessionExists = async () => {
+        const {
+            data: { session }
+        } = await window.supabaseClient.auth.getSession();
+
+        if (session) {
+            loading.textContent =
+                "Link validado. Defina sua nova senha abaixo.";
+
+            form?.classList.remove("hidden-form");
+            return true;
+        }
+
+        return false;
+    };
+
+    const alreadyReady =
+        await showFormIfSessionExists();
+
+    if (!alreadyReady) {
+        const {
+            data: { subscription }
+        } =
+            window.supabaseClient.auth.onAuthStateChange(
+                async (event) => {
+                    if (
+                        event === "PASSWORD_RECOVERY" ||
+                        event === "SIGNED_IN"
+                    ) {
+                        await showFormIfSessionExists();
+                    }
+                }
+            );
+
+        setTimeout(async () => {
+            const ready =
+                await showFormIfSessionExists();
+
+            if (!ready && loading) {
+                loading.textContent =
+                    "O link de recuperação é inválido ou expirou. " +
+                    "Solicite um novo link na página inicial.";
+            }
+        }, 2500);
+
+        window.addEventListener(
+            "beforeunload",
+            () => subscription?.unsubscribe()
+        );
+    }
+
+    form?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const password =
+            document.getElementById("resetNewPassword").value;
+
+        const confirmation =
+            document.getElementById("resetConfirmPassword").value;
+
+        const button =
+            document.getElementById("btnResetPassword");
+
+        errorElement.textContent = "";
+
+        if (password.length < 8) {
+            errorElement.textContent =
+                "A senha precisa ter pelo menos 8 caracteres.";
+            return;
+        }
+
+        if (password !== confirmation) {
+            errorElement.textContent =
+                "As duas senhas não são iguais.";
+            return;
+        }
+
+        setButtonLoading(
+            button,
+            true,
+            "Salvar nova senha",
+            "Salvando..."
+        );
+
+        const { error } =
+            await window.supabaseClient.auth.updateUser({
+                password
+            });
+
+        setButtonLoading(
+            button,
+            false,
+            "Salvar nova senha"
+        );
+
+        if (error) {
+            console.error(error);
+            errorElement.textContent =
+                "Não foi possível redefinir a senha. Solicite um novo link e tente novamente.";
+            return;
+        }
+
+        showToast(
+            "Senha redefinida com sucesso!"
+        );
+
+        setTimeout(async () => {
+            await window.supabaseClient.auth.signOut();
+            window.location.href = "index.html";
+        }, 1300);
+    });
+}
+
+
+/* =========================================================
+   PÁGINA PÚBLICA
+========================================================= */
+
+async function initUser() {
+    const searchInput =
+        document.getElementById("searchItem");
+
+    const userItems =
+        document.getElementById("userItems");
+
+    const modal =
+        document.getElementById("donationModal");
+
+    const closeModalButton =
+        document.getElementById("closeDonationModal");
+
+    const donationForm =
+        document.getElementById("donationForm");
+
+    const participantForm =
+        document.getElementById("participanteForm");
+
+    searchInput?.addEventListener("input", () => {
+        renderUserItemsFiltered(searchInput.value);
+    });
+
+    userItems?.addEventListener("click", (event) => {
+        const button =
+            event.target.closest("[data-donate-item]");
+
+        if (!button) {
+            return;
+        }
+
+        openDonationModal(button.dataset.donateItem);
+    });
+
+    closeModalButton?.addEventListener(
+        "click",
+        closeDonationModal
+    );
+
+    modal?.addEventListener("click", (event) => {
+        if (event.target === modal) {
+            closeDonationModal();
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            closeDonationModal();
+        }
+    });
+
+    donationForm?.addEventListener(
+        "submit",
+        registerDonation
+    );
+
+    participantForm?.addEventListener(
+        "submit",
+        addParticipant
+    );
+
+    await refreshUserData();
+
+    startLiveUpdates("user");
+}
+
+
+async function refreshUserData() {
+    const [items, participants] =
+        await Promise.all([
+            fetchItemsWithDonations(),
+            fetchParticipants()
+        ]);
+
+    currentItems = items;
+    currentParticipants = participants;
+
+    renderUserStats(currentItems);
+
+    const search =
+        document.getElementById("searchItem")?.value || "";
+
+    renderUserItemsFiltered(search);
+
+    renderParticipantsUser(currentParticipants);
+}
+
+
+function renderUserStats(items) {
+    const totalTarget =
+        items.reduce(
+            (sum, item) => sum + Number(item.meta || 0),
+            0
+        );
+
+    const totalDonated =
+        items.reduce(
+            (sum, item) => sum + Number(item.doado || 0),
+            0
+        );
+
+    const completed =
+        items.filter(
+            (item) =>
+                Number(item.doado) >= Number(item.meta)
+        ).length;
+
+    setText("userStatItens", items.length);
+    setText("userStatMeta", totalTarget);
+    setText("userStatDoado", totalDonated);
+    setText("userStatConcluidos", completed);
+}
+
+
+function renderUserItemsFiltered(search = "") {
+    const term = search.trim().toLowerCase();
+
+    const filtered =
+        !term
+            ? currentItems
+            : currentItems.filter(
+                (item) =>
+                    item.nome.toLowerCase().includes(term) ||
+                    (item.descricao || "")
+                        .toLowerCase()
+                        .includes(term)
+            );
+
+    renderUserItems(filtered);
+}
+
+
+function renderUserItems(items) {
+    const container =
+        document.getElementById("userItems");
+
+    if (!container) {
+        return;
+    }
+
+    if (items.length === 0) {
+        container.innerHTML =
+            emptyStateHTML(
+                "🔎",
+                "Nenhum item encontrado",
+                "Não encontramos itens disponíveis com essa pesquisa."
+            );
+
+        return;
+    }
+
+    container.innerHTML =
+        items.map(createUserItemCard).join("");
+}
+
+
+function createUserItemCard(item) {
+    const percentage = calculatePercentage(item);
+    const remaining = getRemaining(item);
+    const completed = remaining === 0;
+
+    const lastDonors =
+        [...(item.doacoes || [])]
+            .sort(
+                (a, b) =>
+                    new Date(b.data) - new Date(a.data)
+            )
+            .slice(0, 3);
+
+    const donorHTML =
+        lastDonors.length
+            ? `
+                <div class="donors-preview">
+                    <p class="donors-preview-title">
+                        PESSOAS QUE JÁ AJUDARAM
+                    </p>
+
+                    ${lastDonors
+                        .map(
+                            (donation) => `
+                                <div class="donor-mini">
+                                    <span>
+                                        ♡ ${escapeHTML(donation.nome)}
+                                    </span>
+
+                                    <strong>
+                                        ${donation.quantidade}
+                                    </strong>
+                                </div>
+                            `
+                        )
+                        .join("")}
+                </div>
+            `
+            : "";
+
+    return `
+        <article class="item-card ${completed ? "completed" : ""}">
+            <div class="item-top">
+                <div class="item-icon">📦</div>
+
+                <span class="item-status ${completed ? "completed-status" : ""}">
+                    ${completed ? "META ATINGIDA" : "PRECISAMOS"}
+                </span>
+            </div>
+
+            <h3>${escapeHTML(item.nome)}</h3>
+
+            <p class="item-description">
+                ${
+                    escapeHTML(item.descricao) ||
+                    "Ajude-nos contribuindo com este item."
+                }
+            </p>
+
+            <div class="progress-info">
+                <span>
+                    ${
+                        completed
+                            ? "Meta concluída"
+                            : `${remaining} ainda necessário(s)`
+                    }
+                </span>
+
+                <strong>${percentage}%</strong>
+            </div>
+
+            <div class="progress-track">
+                <div
+                    class="progress-bar"
+                    style="width: ${percentage}%"
+                ></div>
+            </div>
+
+            <div class="item-numbers">
+                <div class="item-number">
+                    <span>META</span>
+                    <strong>${item.meta}</strong>
+                </div>
+
+                <div class="item-number">
+                    <span>DOADO</span>
+                    <strong>${item.doado}</strong>
+                </div>
+
+                <div class="item-number">
+                    <span>FALTAM</span>
+                    <strong>${remaining}</strong>
+                </div>
+            </div>
+
+            <button
+                class="primary-button full-button"
+                data-donate-item="${item.id}"
+                ${completed ? "disabled" : ""}
+            >
+                ${
+                    completed
+                        ? "✓ Meta atingida"
+                        : "♡ Quero doar"
+                }
+            </button>
+
+            ${donorHTML}
+        </article>
+    `;
+}
+
+
+function openDonationModal(itemId) {
+    const item =
+        currentItems.find(
+            (value) => value.id === itemId
+        );
+
+    if (!item) {
+        return;
+    }
+
+    const remaining = getRemaining(item);
+
+    if (remaining <= 0) {
+        showToast("A meta deste item já foi atingida. Obrigado!");
+        return;
+    }
+
+    const idInput =
+        document.getElementById("donationItemId");
+
+    const info =
+        document.getElementById("selectedItemInfo");
+
+    const quantityInput =
+        document.getElementById("donorQuantity");
+
+    const quantityHelp =
+        document.getElementById("quantityHelp");
+
+    const error =
+        document.getElementById("donationError");
+
+    idInput.value = item.id;
+
+    info.innerHTML = `
+        <strong>📦 ${escapeHTML(item.nome)}</strong>
+        <span>
+            Ainda precisamos de
+            <b>${remaining}</b>
+            unidade(s).
+        </span>
+    `;
+
+    quantityInput.max = remaining;
+
+    quantityHelp.textContent =
+        `Quantidade máxima necessária: ${remaining}.`;
+
+    error.textContent = "";
+
+    document
+        .getElementById("donationModal")
+        .classList.add("show");
+
+    document.body.style.overflow = "hidden";
+
+    setTimeout(() => {
+        document.getElementById("donorName")?.focus();
+    }, 100);
+}
+
+
+function closeDonationModal() {
+    const modal =
+        document.getElementById("donationModal");
+
+    const form =
+        document.getElementById("donationForm");
+
+    const error =
+        document.getElementById("donationError");
+
+    if (!modal) {
+        return;
+    }
+
+    modal.classList.remove("show");
+    document.body.style.overflow = "";
+
+    form?.reset();
+
+    if (error) {
+        error.textContent = "";
+    }
+}
+
+
+async function registerDonation(event) {
+    event.preventDefault();
+
+    const itemId =
+        document.getElementById("donationItemId").value;
+
+    const name =
+        document.getElementById("donorName").value.trim();
+
+    const quantity =
+        Number(document.getElementById("donorQuantity").value);
+
+    const errorElement =
+        document.getElementById("donationError");
+
+    const submitButton =
+        event.currentTarget.querySelector('button[type="submit"]');
+
+    errorElement.textContent = "";
+
+    if (name.length < 2) {
+        errorElement.textContent = "Informe um nome válido.";
+        return;
+    }
+
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+        errorElement.textContent = "Informe uma quantidade válida.";
+        return;
+    }
+
+    const item =
+        currentItems.find(
+            (value) => value.id === itemId
+        );
+
+    if (!item) {
+        errorElement.textContent = "Este item não foi encontrado.";
+        return;
+    }
+
+    const remaining = getRemaining(item);
+
+    if (quantity > remaining) {
+        errorElement.textContent =
+            `No momento faltam somente ${remaining} unidade(s).`;
+
+        return;
+    }
+
+    setButtonLoading(
+        submitButton,
+        true,
+        "♡ Confirmar minha doação",
+        "Registrando..."
+    );
+
+    const { error } =
+        await window.supabaseClient
+            .from("doacoes")
+            .insert({
+                item_id: itemId,
+                nome_doador: name,
+                quantidade: quantity
+            });
+
+    setButtonLoading(
+        submitButton,
+        false,
+        "♡ Confirmar minha doação"
+    );
+
+    if (error) {
+        errorElement.textContent =
+            friendlyDatabaseError(
+                error,
+                "Não foi possível registrar a doação. Atualize a página e tente novamente."
+            );
+
+        return;
+    }
+
+    closeDonationModal();
+
+    await refreshUserData();
+
+    showToast(
+        `Obrigado, ${name}! Sua doação de ${quantity} unidade(s) foi registrada. ♡`
+    );
+}
+
+
+/* =========================================================
+   PARTICIPANTES
+========================================================= */
+
+async function addParticipant(event) {
+    event.preventDefault();
+
+    const input =
+        document.getElementById("participanteNome");
+
+    const errorElement =
+        document.getElementById("participanteErro");
+
+    const button =
+        event.currentTarget.querySelector('button[type="submit"]');
+
+    const name = input.value.trim();
+
+    errorElement.textContent = "";
+
+    if (name.length < 2) {
+        errorElement.textContent = "Digite um nome válido.";
+        return;
+    }
+
+    setButtonLoading(
+        button,
+        true,
+        "+ Adicionar à lista",
+        "Adicionando..."
+    );
+
+    const { error } =
+        await window.supabaseClient
+            .from("participantes")
+            .insert({
+                nome: name
+            });
+
+    setButtonLoading(
+        button,
+        false,
+        "+ Adicionar à lista"
+    );
+
+    if (error) {
+        errorElement.textContent =
+            friendlyDatabaseError(
+                error,
+                "Não foi possível adicionar o participante."
+            );
+
+        return;
+    }
+
+    input.value = "";
+
+    await refreshUserData();
+
+    showToast(
+        `${name} foi adicionado à lista do Acampamento RENOVO!`
+    );
+
+    input.focus();
+}
+
+
+function renderParticipantsUser(participants) {
+    const container =
+        document.getElementById("listaParticipantes");
+
+    const total =
+        document.getElementById("totalParticipantes");
+
+    if (!container || !total) {
+        return;
+    }
+
+    total.textContent = participants.length;
+
+    if (participants.length === 0) {
+        container.innerHTML =
+            emptyStateHTML(
+                "🙋",
+                "Nenhum participante ainda",
+                "Seja o primeiro a confirmar presença no Acampamento RENOVO!"
+            );
+
+        return;
+    }
+
+    container.innerHTML =
+        participants
+            .map((participant, index) => {
+                const initial =
+                    escapeHTML(
+                        participant.nome
+                            .charAt(0)
+                            .toUpperCase()
+                    );
+
+                return `
+                    <div class="participante-row">
+                        <div class="participante-numero">
+                            ${index + 1}
+                        </div>
+
+                        <div class="participante-avatar">
+                            ${initial}
+                        </div>
+
+                        <div class="participante-info">
+                            <strong>
+                                ${escapeHTML(participant.nome)}
+                            </strong>
+
+                            <span>
+                                Presença confirmada
+                            </span>
+                        </div>
+                    </div>
+                `;
+            })
+            .join("");
+}
+
+
+/* =========================================================
+   COMPONENTES
+========================================================= */
+
+function emptyStateHTML(icon, title, description) {
+    return `
+        <div class="empty-state">
+            <div class="empty-icon">${icon}</div>
+
+            <h3>${escapeHTML(title)}</h3>
+
+            <p>${escapeHTML(description)}</p>
+        </div>
+    `;
+}
+
+
+================================================================================
+ARQUIVO: style.css
+================================================================================
+
+/* =========================================================
+   ACAMPAMENTO RENOVO - IDENTIDADE VISUAL
+========================================================= */
+
+:root {
+    --primary: #164b32;
+    --primary-dark: #0f3825;
+    --primary-light: #e8f2ec;
+
+    --green: #1f6b46;
+    --green-dark: #164b32;
+    --green-light: #e7f1eb;
+
+    --red: #9e2a2b;
+    --red-dark: #7d1f20;
+    --red-light: #f8e8e8;
+
+    --gold: #c6a15b;
+    --orange: #b7791f;
+
+    --text: #1d2923;
+    --muted: #68736d;
+
+    --background: #f4f6f4;
+    --white: #ffffff;
+    --border: #dfe6e1;
+
+    --shadow: 0 12px 40px rgba(21, 75, 50, 0.08);
+    --shadow-hover: 0 18px 45px rgba(21, 75, 50, 0.15);
+
+    --radius: 20px;
+}
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+body {
+    min-height: 100vh;
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+    background: var(--background);
+    color: var(--text);
+    line-height: 1.5;
+}
+
+
+button,
+input,
+textarea {
+    font: inherit;
+}
+
+
+button {
+    cursor: pointer;
+}
+
+
+button:disabled {
+    cursor: not-allowed;
+}
+
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+
+input,
+textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    border-radius: 12px;
+    outline: none;
+    background: #fff;
+    color: var(--text);
+    transition: 0.2s;
+}
+
+
+input:focus,
+textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(22, 75, 50, 0.10);
+}
+
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 650;
+}
+
+
+small {
+    color: var(--muted);
+}
+
+
+/* =========================================================
+   BOTÕES
+========================================================= */
+
+.primary-button {
+    border: none;
+    border-radius: 12px;
+    padding: 13px 20px;
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary),
+            var(--green)
+        );
+    color: white;
+    font-weight: 750;
+    transition: 0.2s;
+    box-shadow: 0 8px 20px rgba(22, 75, 50, 0.18);
+}
+
+
+.primary-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 25px rgba(22, 75, 50, 0.25);
+}
+
+
+.primary-button:disabled {
+    background: #95a59b;
+    box-shadow: none;
+    transform: none;
+}
+
+
+.secondary-button {
+    padding: 10px 16px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 650;
+    transition: 0.2s;
+}
+
+
+.secondary-button:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+
+.danger-outline-button {
+    padding: 10px 16px;
+    background: white;
+    color: var(--red);
+    border: 1px solid #edc7c7;
+    border-radius: 10px;
+    font-weight: 650;
+    transition: 0.2s;
+}
+
+
+.danger-outline-button:hover:not(:disabled) {
+    background: var(--red-light);
+    border-color: var(--red);
+}
+
+
+.full-button {
+    width: 100%;
+}
+
+
+.big-button {
+    padding: 15px 20px;
+}
+
+
+.icon-button {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: #eef2ef;
+    color: #536058;
+    transition: 0.2s;
+}
+
+
+.icon-button:hover {
+    background: #e2e9e4;
+}
+
+
+/* =========================================================
+   LANDING / LOGIN
+========================================================= */
+
+.login-page {
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(31, 107, 70, 0.14),
+            transparent 34%
+        ),
+        radial-gradient(
+            circle at bottom right,
+            rgba(158, 42, 43, 0.08),
+            transparent 35%
+        ),
+        var(--background);
+}
+
+
+.landing-header {
+    width: 100%;
+    padding: 20px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 5;
+}
+
+
+.landing-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+
+.landing-brand-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary);
+    color: white;
+    font-size: 22px;
+}
+
+
+.landing-brand strong,
+.landing-brand small {
+    display: block;
+}
+
+
+.landing-brand strong {
+    color: var(--primary);
+    font-size: 15px;
+}
+
+
+.landing-brand small {
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+
+.landing-badge {
+    padding: 8px 14px;
+    border-radius: 30px;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 105px 20px 45px;
+}
+
+
+.login-card {
+    width: 100%;
+    max-width: 840px;
+    padding: 44px;
+    border: 1px solid rgba(22, 75, 50, 0.10);
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow: 0 30px 80px rgba(22, 75, 50, 0.12);
+    text-align: center;
+}
+
+
+.brand-icon {
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 20px;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary),
+            var(--green)
+        );
+    color: white;
+    font-size: 34px;
+    box-shadow: 0 15px 30px rgba(22, 75, 50, 0.22);
+}
+
+
+.eyebrow,
+.small-label {
+    color: var(--red);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+}
+
+
+.login-card > h1 {
+    margin-top: 8px;
+    color: var(--primary);
+    font-size: clamp(30px, 5vw, 44px);
+    letter-spacing: -1.5px;
+}
+
+
+.text-red {
+    color: var(--red);
+}
+
+
+.login-description {
+    max-width: 610px;
+    margin: 12px auto 24px;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+
+.purpose-message {
+    margin-bottom: 28px;
+    padding: 14px 18px;
+    border-left: 4px solid var(--primary);
+    border-radius: 12px;
+    background: #f1f6f3;
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 650;
+}
+
+
+.role-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+
+.role-card {
+    min-height: 170px;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: white;
+    text-align: left;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    transition: 0.25s;
+}
+
+
+.role-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+}
+
+
+.role-user:hover {
+    border-color: var(--primary);
+}
+
+
+.role-admin:hover {
+    border-color: var(--red);
+}
+
+
+.role-icon {
+    min-width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 22px;
+}
+
+
+.role-admin .role-icon {
+    background: var(--red-light);
+    color: var(--red);
+}
+
+
+.role-card h2 {
+    margin-bottom: 5px;
+    font-size: 18px;
+}
+
+
+.role-card p {
+    padding-right: 15px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+
+.role-arrow {
+    position: absolute;
+    right: 18px;
+    bottom: 18px;
+    color: var(--primary);
+    font-size: 23px;
+}
+
+
+.role-admin .role-arrow {
+    color: var(--red);
+}
+
+
+.admin-login-box {
+    display: none;
+    margin-top: 25px;
+    padding: 25px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: #f8faf8;
+    text-align: left;
+}
+
+
+.admin-login-box.show {
+    display: block;
+    animation: slideDown 0.25s ease;
+}
+
+
+.admin-login-header {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+
+.admin-login-header h3 {
+    margin-top: 4px;
+    color: var(--primary);
+}
+
+
+.password-field {
+    position: relative;
+}
+
+
+.password-field input {
+    padding-right: 85px;
+}
+
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    border: none;
+    background: none;
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 750;
+}
+
+
+.form-error {
+    min-height: 20px;
+    margin: 7px 0;
+    color: var(--red);
+    font-size: 13px;
+}
+
+
+.login-security-note {
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+
+.login-footer {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   CABEÇALHO INTERNO
+========================================================= */
+
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(15px);
+}
+
+
+.topbar-container {
+    max-width: 1240px;
+    margin: auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+
+.brand-mini-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary),
+            var(--green)
+        );
+    color: white;
+}
+
+
+.brand strong,
+.brand span {
+    display: block;
+}
+
+
+.brand strong {
+    color: var(--primary);
+    font-size: 15px;
+}
+
+
+.brand span {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+
+.topbar-actions {
+    display: flex;
+    gap: 8px;
+}
+
+
+/* =========================================================
+   CONTEÚDO
+========================================================= */
+
+.page-container {
+    max-width: 1240px;
+    margin: auto;
+    padding: 35px 24px 70px;
+}
+
+
+.page-hero {
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+
+.page-hero h1 {
+    margin: 4px 0;
+    color: var(--primary);
+    font-size: clamp(28px, 4vw, 40px);
+    letter-spacing: -1px;
+}
+
+
+.page-hero p {
+    color: var(--muted);
+}
+
+
+.donation-hero {
+    margin-bottom: 25px;
+    padding: 55px 45px;
+    border-radius: 25px;
+    overflow: hidden;
+    position: relative;
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(255, 255, 255, 0.20),
+            transparent 30%
+        ),
+        linear-gradient(
+            135deg,
+            var(--primary-dark),
+            var(--green)
+        );
+    color: white;
+}
+
+
+.hero-content {
+    max-width: 700px;
+}
+
+
+.hero-tag {
+    display: inline-block;
+    margin-bottom: 15px;
+    padding: 7px 11px;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.14);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+
+.donation-hero h1 {
+    margin-bottom: 16px;
+    font-size: clamp(34px, 6vw, 53px);
+    line-height: 1.04;
+    letter-spacing: -2px;
+}
+
+
+.donation-hero h1 span {
+    color: #d9f3e3;
+}
+
+
+.donation-hero p {
+    max-width: 610px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 16px;
+}
+
+
+/* =========================================================
+   ESTATÍSTICAS
+========================================================= */
+
+.stats-grid {
+    margin-bottom: 28px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+
+.stat-card {
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: white;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 5px 18px rgba(21, 75, 50, 0.04);
+}
+
+
+.stat-icon {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+
+.stat-card span,
+.stat-card strong {
+    display: block;
+}
+
+
+.stat-card span {
+    margin-bottom: 3px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+
+.stat-card strong {
+    font-size: 24px;
+    color: var(--primary);
+}
+
+
+/* =========================================================
+   PAINÉIS
+========================================================= */
+
+.admin-layout {
+    margin-bottom: 45px;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 20px;
+}
+
+
+.panel-card {
+    padding: 25px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: white;
+    box-shadow: var(--shadow);
+}
+
+
+.panel-header {
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+
+.panel-header h2 {
+    margin-top: 4px;
+    font-size: 21px;
+}
+
+
+.panel-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 25px;
+}
+
+
+.form-group {
+    margin-bottom: 17px;
+}
+
+
+.info-card {
+    background:
+        linear-gradient(
+            145deg,
+            #f8fbf9,
+            #ffffff
+        );
+}
+
+
+.info-card h2 {
+    margin: 6px 0 20px;
+}
+
+
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 17px;
+}
+
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+}
+
+
+.info-item > span {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary);
+    color: white;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+
+.info-item p {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   SEÇÕES
+========================================================= */
+
+.section-block {
+    margin-top: 40px;
+}
+
+
+.section-heading {
+    margin-bottom: 18px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+
+.section-heading h2 {
+    margin-top: 4px;
+    color: var(--primary);
+    font-size: 25px;
+}
+
+
+.section-heading p {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+
+.search-box {
+    min-width: 260px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+.search-box input {
+    padding-left: 0;
+    border: none;
+    box-shadow: none !important;
+}
+
+
+/* =========================================================
+   CARDS DOS ITENS
+========================================================= */
+
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+
+.item-card {
+    padding: 22px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: white;
+    box-shadow: 0 7px 25px rgba(21, 75, 50, 0.05);
+    position: relative;
+    overflow: hidden;
+    transition: 0.25s;
+}
+
+
+.item-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+}
+
+
+.item-card.completed {
+    border-color: rgba(31, 107, 70, 0.45);
+}
+
+
+.item-top {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+
+.item-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-light);
+    font-size: 20px;
+}
+
+
+.item-status {
+    align-self: flex-start;
+    padding: 5px 9px;
+    border-radius: 30px;
+    background: #fff4db;
+    color: #8a5d00;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+
+.item-status.completed-status {
+    background: var(--green-light);
+    color: var(--green-dark);
+}
+
+
+.item-card h3 {
+    margin-bottom: 5px;
+    font-size: 20px;
+}
+
+
+.item-description {
+    min-height: 39px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+
+.progress-info {
+    margin: 21px 0 7px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+}
+
+
+.progress-info span {
+    color: var(--muted);
+}
+
+
+.progress-track {
+    width: 100%;
+    height: 9px;
+    border-radius: 50px;
+    overflow: hidden;
+    background: #e9eeea;
+}
+
+
+.progress-bar {
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background:
+        linear-gradient(
+            90deg,
+            var(--primary),
+            #3c8a60
+        );
+    transition: width 0.45s ease;
+}
+
+
+.item-numbers {
+    margin: 18px 0;
+    padding: 12px;
+    border-radius: 12px;
+    background: #f7f9f7;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+
+.item-number {
+    text-align: center;
+    border-right: 1px solid var(--border);
+}
+
+
+.item-number:last-child {
+    border-right: none;
+}
+
+
+.item-number span,
+.item-number strong {
+    display: block;
+}
+
+
+.item-number span {
+    color: var(--muted);
+    font-size: 10px;
+}
+
+
+.item-number strong {
+    margin-top: 2px;
+    color: var(--primary);
+    font-size: 16px;
+}
+
+
+.item-actions {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+}
+
+
+.item-actions button {
+    flex: 1;
+}
+
+
+.donors-preview {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+}
+
+
+.donors-preview-title {
+    margin-bottom: 8px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 750;
+}
+
+
+.donor-mini {
+    padding: 5px 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 12px;
+}
+
+
+.donor-mini strong {
+    color: var(--green-dark);
+}
+
+
+/* =========================================================
+   PARTICIPANTES
+========================================================= */
+
+.participantes-section {
+    margin-top: 45px;
+}
+
+
+.participantes-total {
+    min-width: 160px;
+    padding: 12px 18px;
+    border: 1px solid rgba(31, 107, 70, 0.18);
+    border-radius: 15px;
+    background: var(--green-light);
+    text-align: center;
+}
+
+
+.participantes-total span {
+    display: block;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 750;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+
+.participantes-total strong {
+    display: block;
+    margin-top: 2px;
+    color: var(--green-dark);
+    font-size: 28px;
+}
+
+
+.participantes-layout {
+    display: grid;
+    grid-template-columns: 0.85fr 1.5fr;
+    gap: 20px;
+}
+
+
+.participante-form-card {
+    text-align: center;
+}
+
+
+.participante-form-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 15px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--green-light);
+    font-size: 27px;
+}
+
+
+.participante-form-card h3 {
+    margin-bottom: 6px;
+    color: var(--green-dark);
+    font-size: 21px;
+}
+
+
+.participante-form-card > p {
+    margin-bottom: 20px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+.participante-form-card .form-group {
+    text-align: left;
+}
+
+
+.lista-participantes-header {
+    margin-bottom: 8px;
+    padding-bottom: 17px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+
+.lista-participantes-header h3 {
+    margin-top: 4px;
+    font-size: 20px;
+}
+
+
+.participante-badge {
+    padding: 6px 11px;
+    border-radius: 50px;
+    background: var(--green-light);
+    color: var(--green-dark);
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+
+.lista-participantes {
+    max-height: 460px;
+    overflow-y: auto;
+}
+
+
+.participante-row {
+    padding: 12px 5px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+
+.participante-row:last-child {
+    border-bottom: none;
+}
+
+
+.participante-numero {
+    width: 31px;
+    height: 31px;
+    min-width: 31px;
+    border-radius: 50%;
+    background: var(--green-light);
+    color: var(--green-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+
+.participante-avatar {
+    width: 41px;
+    height: 41px;
+    min-width: 41px;
+    border-radius: 12px;
+    background: var(--primary-light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+
+.participante-info {
+    flex: 1;
+}
+
+
+.participante-info strong,
+.participante-info span {
+    display: block;
+}
+
+
+.participante-info strong {
+    font-size: 14px;
+}
+
+
+.participante-info span {
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 10px;
+}
+
+
+.admin-participantes-list {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.admin-participante-row {
+    padding: 12px 3px;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 45px 1fr auto;
+    align-items: center;
+    gap: 13px;
+}
+
+
+.admin-participante-row:last-child {
+    border-bottom: none;
+}
+
+
+.admin-participante-numero {
+    width: 35px;
+    height: 35px;
+    border-radius: 10px;
+    background: var(--green-light);
+    color: var(--green-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+
+.admin-participante-info strong,
+.admin-participante-info span {
+    display: block;
+}
+
+
+.admin-participante-info strong {
+    font-size: 14px;
+}
+
+
+.admin-participante-info span {
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+
+.remover-participante {
+    padding: 8px 12px;
+    border: 1px solid #edc7c7;
+    border-radius: 9px;
+    background: white;
+    color: var(--red);
+    font-size: 11px;
+    font-weight: 750;
+    transition: 0.2s;
+}
+
+
+.remover-participante:hover:not(:disabled) {
+    border-color: var(--red);
+    background: var(--red-light);
+}
+
+
+/* =========================================================
+   HISTÓRICO
+========================================================= */
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.history-row {
+    padding: 13px 5px;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 50px 1.4fr 1fr auto;
+    align-items: center;
+    gap: 14px;
+}
+
+
+.history-row:last-child {
+    border-bottom: none;
+}
+
+
+.history-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+}
+
+
+.history-person strong,
+.history-person span {
+    display: block;
+}
+
+
+.history-person span {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+
+.history-item {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+
+.history-quantity {
+    padding: 5px 10px;
+    border-radius: 30px;
+    background: var(--green-light);
+    color: var(--green-dark);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    padding: 20px;
+    background: rgba(20, 31, 24, 0.55);
+    backdrop-filter: blur(5px);
+    align-items: center;
+    justify-content: center;
+}
+
+
+.modal-overlay.show {
+    display: flex;
+}
+
+
+.modal-card {
+    width: 100%;
+    max-width: 500px;
+    max-height: 92vh;
+    padding: 28px;
+    border-radius: 24px;
+    overflow-y: auto;
+    background: white;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.25);
+    animation: modalEnter 0.25s ease;
+}
+
+
+.modal-header {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+
+.modal-header h2 {
+    margin-top: 4px;
+}
+
+
+.selected-item {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: #f7faf8;
+}
+
+
+.selected-item strong {
+    display: block;
+    margin-bottom: 3px;
+}
+
+
+.selected-item span {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+
+.modal-note {
+    margin-top: 15px;
+    color: var(--muted);
+    text-align: center;
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   ESTADO VAZIO
+========================================================= */
+
+.empty-state {
+    grid-column: 1 / -1;
+    padding: 45px 25px;
+    border: 1px dashed #c7d1ca;
+    border-radius: var(--radius);
+    background: white;
+    text-align: center;
+}
+
+
+.empty-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 15px;
+    border-radius: 17px;
+    background: var(--primary-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 25px;
+}
+
+
+.empty-state h3 {
+    margin-bottom: 5px;
+}
+
+
+.empty-state p {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+.toast {
+    position: fixed;
+    right: 25px;
+    bottom: 25px;
+    z-index: 2000;
+    max-width: 360px;
+    padding: 14px 20px;
+    border-radius: 12px;
+    background: #1d2923;
+    color: white;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.20);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(30px);
+    transition: 0.3s;
+    font-size: 14px;
+}
+
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+/* =========================================================
+   ANIMAÇÕES
+========================================================= */
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+@keyframes modalEnter {
+    from {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVO
+========================================================= */
+
+@media (max-width: 950px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .items-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .admin-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .participantes-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+@media (max-width: 700px) {
+    .landing-header {
+        padding: 15px 18px;
+    }
+
+    .landing-badge {
+        display: none;
+    }
+
+    .login-container {
+        padding: 90px 15px 30px;
+    }
+
+    .login-card {
+        padding: 30px 20px;
+    }
+
+    .role-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .topbar-container {
+        padding: 12px 15px;
+    }
+
+    .page-container {
+        padding: 25px 15px 60px;
+    }
+
+    .topbar-actions .secondary-button {
+        display: none;
+    }
+
+    .stats-grid {
+        gap: 10px;
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stat-card {
+        padding: 15px;
+        gap: 9px;
+    }
+
+    .stat-icon {
+        width: 37px;
+        height: 37px;
+        min-width: 37px;
+    }
+
+    .stat-card strong {
+        font-size: 20px;
+    }
+
+    .items-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .donation-hero {
+        padding: 40px 25px;
+    }
+
+    .donation-hero h1 {
+        letter-spacing: -1px;
+    }
+
+    .section-heading {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .search-box {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .participantes-total {
+        width: 100%;
+    }
+
+    .lista-participantes-header {
+        flex-direction: column;
+    }
+
+    .history-row {
+        grid-template-columns: 42px 1fr auto;
+    }
+
+    .history-item {
+        grid-column: 2 / 4;
+    }
+
+    .admin-participante-row {
+        grid-template-columns: 35px 1fr;
+    }
+
+    .remover-participante {
+        grid-column: 2;
+        justify-self: start;
+    }
+}
+
+
+@media (max-width: 450px) {
+    .landing-brand small,
+    .brand span {
+        display: none;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .stat-card {
+        display: block;
+    }
+
+    .stat-icon {
+        margin-bottom: 8px;
+    }
+
+    .item-numbers {
+        padding: 10px 4px;
+    }
+
+    .modal-card {
+        padding: 22px;
+    }
+
+    .role-card {
+        min-height: 155px;
+    }
+}
+
+
+/* =========================================================
+   SENHA / CONTA
+========================================================= */
+
+.forgot-password-button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px 14px;
+    border: none;
+    background: transparent;
+    color: var(--primary);
+    font-weight: 750;
+    font-size: 13px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+
+.forgot-password-button:hover:not(:disabled) {
+    color: var(--red);
+}
+
+
+.forgot-password-button:disabled {
+    color: var(--muted);
+}
+
+
+.account-user-info {
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--primary-light);
+}
+
+
+.account-user-info span,
+.account-user-info strong {
+    display: block;
+}
+
+
+.account-user-info span {
+    margin-bottom: 3px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+
+.account-user-info strong {
+    color: var(--primary);
+    font-size: 14px;
+}
+
+
+.password-reset-card {
+    max-width: 560px;
+    text-align: left;
+}
+
+
+.password-reset-card .brand-icon,
+.password-reset-card > .eyebrow,
+.password-reset-card > h1,
+.password-reset-card > .login-description {
+    text-align: center;
+}
+
+
+.password-reset-card > .eyebrow {
+    display: block;
+}
+
+
+.password-reset-card > h1 {
+    color: var(--primary);
+}
+
+
+.reset-status {
+    margin-bottom: 18px;
+    padding: 14px 16px;
+    border-left: 4px solid var(--primary);
+    border-radius: 10px;
+    background: #f1f6f3;
+    color: var(--primary);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+
+.hidden-form {
+    display: none;
+}
+
+
+.back-login-link {
+    display: block;
+    margin-top: 22px;
+    color: var(--primary);
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+.back-login-link:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================================================
+   CADASTRO SECRETO DE ADMINISTRADOR
+========================================================= */
+
+#secretAdminHeart {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#secretAdminHeart:active {
+    transform: scale(0.96);
+}
+
+.admin-secret-description {
+    margin-bottom: 20px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+
+================================================================================
+ARQUIVO: supabase-config.js
+================================================================================
+
+/* =========================================================
+   SUPABASE - ACAMPAMENTO RENOVO
+   Use SOMENTE a Publishable Key no navegador.
+========================================================= */
+
+const SUPABASE_URL =
+    "https://xgfywvvgtckjhypqjegv.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_rqveXjLAEhEaA309HlC2hQ_a7Pd2INL";
+
+window.supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY,
+        {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: true
+            }
+        }
+    );
+
+
+================================================================================
+ARQUIVO: redefinir-senha.html
+================================================================================
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Redefinição de senha do administrador do Acampamento RENOVO.">
+    <title>Redefinir senha | Acampamento RENOVO</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="supabase-config.js"></script>
+    <script defer src="app.js"></script>
+</head>
+
+<body data-page="reset-password" class="login-page">
+    <header class="landing-header">
+        <a class="landing-brand" href="index.html">
+            <span class="landing-brand-icon">✝</span>
+            <span>
+                <strong>Acampamento RENOVO</strong>
+                <small>Recuperação de acesso</small>
+            </span>
+        </a>
+
+        <span class="landing-badge">RENOVO 2026</span>
+    </header>
+
+    <main class="login-container">
+        <section class="login-card password-reset-card">
+            <div class="brand-icon">🔐</div>
+
+            <span class="eyebrow">ACESSO DO ADMINISTRADOR</span>
+
+            <h1>Redefinir senha</h1>
+
+            <p class="login-description">
+                Digite uma nova senha para sua conta de administrador.
+                O link recebido por e-mail precisa estar válido.
+            </p>
+
+            <div id="resetLoading" class="reset-status">
+                Validando o link de recuperação...
+            </div>
+
+            <form id="resetPasswordForm" class="hidden-form">
+                <div class="form-group">
+                    <label for="resetNewPassword">Nova senha</label>
+                    <input
+                        type="password"
+                        id="resetNewPassword"
+                        autocomplete="new-password"
+                        minlength="8"
+                        placeholder="Mínimo de 8 caracteres"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="resetConfirmPassword">Confirmar nova senha</label>
+                    <input
+                        type="password"
+                        id="resetConfirmPassword"
+                        autocomplete="new-password"
+                        minlength="8"
+                        placeholder="Digite novamente a senha"
+                        required
+                    >
+                </div>
+
+                <p class="form-error" id="resetPasswordError"></p>
+
+                <button
+                    type="submit"
+                    class="primary-button full-button"
+                    id="btnResetPassword"
+                >
+                    Salvar nova senha
+                </button>
+            </form>
+
+            <a class="back-login-link" href="index.html">
+                ← Voltar para a página inicial
+            </a>
+        </section>
+    </main>
+
+    <div id="toast" class="toast"></div>
+</body>
+</html>
