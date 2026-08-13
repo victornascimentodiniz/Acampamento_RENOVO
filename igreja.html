@@ -1,293 +1,207 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Campanha de Doações</title>
+    <meta name="description" content="Campanha de doações e participantes do Acampamento RENOVO 2026.">
+    <title>Acampamento RENOVO | Doações</title>
 
     <link rel="stylesheet" href="style.css">
 
-    <script src="app.js" defer></script>
-
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="supabase-config.js"></script>
+    <script defer src="app.js"></script>
 </head>
 
 <body data-page="user">
-
-    <!-- CABEÇALHO -->
-
     <header class="topbar public-topbar">
-
         <div class="topbar-container">
-
             <a href="igreja.html" class="brand">
-
-                <div class="brand-mini-icon">
-                    ❤
-                </div>
+                <div class="brand-mini-icon">✝</div>
 
                 <div>
-
-                    <strong>
-                        Campanha Solidária
-                    </strong>
-
-                    <span>
-                        Faça parte desta ação
-                    </span>
-
+                    <strong>Acampamento RENOVO</strong>
+                    <span>Campanha de Doações • 2026</span>
                 </div>
-
             </a>
 
-            <a
-                href="index.html"
-                class="secondary-button"
-            >
+            <a href="index.html" class="secondary-button">
                 Página inicial
             </a>
-
         </div>
-
     </header>
 
-
     <main class="page-container">
-
-        <!-- HERO -->
-
         <section class="donation-hero">
-
             <div class="hero-content">
-
-                <span class="hero-tag">
-                    ❤ CAMPANHA DE DOAÇÃO
-                </span>
+                <span class="hero-tag">♡ ACAMPAMENTO RENOVO 2026</span>
 
                 <h1>
-                    Sua doação pode
-                    <span>fazer a diferença.</span>
+                    Juntos fazemos
+                    <span>a diferença.</span>
                 </h1>
 
                 <p>
-                    Escolha um dos itens abaixo, informe seu nome
-                    e a quantidade que deseja doar.
-                    Cada contribuição nos aproxima ainda mais da nossa meta.
+                    Escolha um item para contribuir com o nosso acampamento.
+                    Informe seu nome e a quantidade que deseja doar.
+                    Você também pode confirmar abaixo quem irá participar.
                 </p>
-
             </div>
-
         </section>
-
-
-        <!-- ESTATÍSTICAS -->
 
         <section class="stats-grid public-stats">
-
             <article class="stat-card">
-
-                <div class="stat-icon">
-                    📦
-                </div>
-
+                <div class="stat-icon">📦</div>
                 <div>
-
-                    <span>Itens necessários</span>
-
-                    <strong id="userStatItens">
-                        0
-                    </strong>
-
+                    <span>Itens cadastrados</span>
+                    <strong id="userStatItens">0</strong>
                 </div>
-
             </article>
 
-
             <article class="stat-card">
-
-                <div class="stat-icon">
-                    ❤
-                </div>
-
+                <div class="stat-icon">♡</div>
                 <div>
-
-                    <span>Itens já doados</span>
-
-                    <strong id="userStatDoado">
-                        0
-                    </strong>
-
+                    <span>Total já doado</span>
+                    <strong id="userStatDoado">0</strong>
                 </div>
-
             </article>
 
-
             <article class="stat-card">
-
-                <div class="stat-icon">
-                    🎯
-                </div>
-
+                <div class="stat-icon">🎯</div>
                 <div>
-
                     <span>Meta total</span>
-
-                    <strong id="userStatMeta">
-                        0
-                    </strong>
-
+                    <strong id="userStatMeta">0</strong>
                 </div>
-
             </article>
-
 
             <article class="stat-card">
-
-                <div class="stat-icon">
-                    ✓
-                </div>
-
+                <div class="stat-icon">✓</div>
                 <div>
-
                     <span>Metas atingidas</span>
-
-                    <strong id="userStatConcluidos">
-                        0
-                    </strong>
-
+                    <strong id="userStatConcluidos">0</strong>
                 </div>
-
             </article>
-
         </section>
 
-
-        <!-- LISTAGEM -->
-
-        <section class="section-block">
-
-            <div class="section-heading user-section-heading">
-
+        <!-- LISTA DE PARTICIPANTES -->
+        <section class="section-block participantes-section">
+            <div class="section-heading">
                 <div>
-
-                    <span class="eyebrow">
-                        COMO POSSO AJUDAR?
-                    </span>
-
-                    <h2>
-                        Itens que precisamos
-                    </h2>
-
+                    <span class="eyebrow">ACAMPAMENTO RENOVO</span>
+                    <h2>Lista de Participantes</h2>
                     <p>
-                        Escolha abaixo o item que você gostaria de doar.
+                        Vai ao acampamento? Adicione abaixo o nome da pessoa
+                        que irá participar.
                     </p>
-
                 </div>
 
+                <div class="participantes-total">
+                    <span>Confirmados</span>
+                    <strong id="totalParticipantes">0</strong>
+                </div>
+            </div>
+
+            <div class="participantes-layout">
+                <article class="panel-card participante-form-card">
+                    <div class="participante-form-icon">🙋</div>
+
+                    <h3>Confirmar presença</h3>
+
+                    <p>
+                        Digite o nome completo de quem irá participar
+                        do Acampamento RENOVO.
+                    </p>
+
+                    <form id="participanteForm">
+                        <div class="form-group">
+                            <label for="participanteNome">Nome completo</label>
+                            <input
+                                type="text"
+                                id="participanteNome"
+                                placeholder="Ex.: João da Silva"
+                                maxlength="100"
+                                required
+                            >
+                        </div>
+
+                        <p class="form-error" id="participanteErro"></p>
+
+                        <button type="submit" class="primary-button full-button">
+                            + Adicionar à lista
+                        </button>
+                    </form>
+                </article>
+
+                <article class="panel-card lista-participantes-card">
+                    <div class="lista-participantes-header">
+                        <div>
+                            <span class="small-label">CONFIRMADOS</span>
+                            <h3>Quem já confirmou presença</h3>
+                        </div>
+
+                        <span class="participante-badge">RENOVO 2026</span>
+                    </div>
+
+                    <div id="listaParticipantes" class="lista-participantes"></div>
+                </article>
+            </div>
+        </section>
+
+        <!-- ITENS PARA DOAÇÃO -->
+        <section class="section-block">
+            <div class="section-heading user-section-heading">
+                <div>
+                    <span class="eyebrow">COMO POSSO AJUDAR?</span>
+                    <h2>Itens que precisamos</h2>
+                    <p>Escolha abaixo o item que você gostaria de doar.</p>
+                </div>
 
                 <div class="search-box">
-
-                    <span>
-                        🔎
-                    </span>
-
+                    <span>🔎</span>
                     <input
                         type="text"
                         id="searchItem"
                         placeholder="Pesquisar item..."
                     >
-
                 </div>
-
             </div>
 
-
-            <div
-                id="userItems"
-                class="items-grid"
-            >
-            </div>
-
+            <div id="userItems" class="items-grid"></div>
         </section>
-
     </main>
 
-
     <!-- MODAL DE DOAÇÃO -->
-
-    <div
-        class="modal-overlay"
-        id="donationModal"
-    >
-
+    <div class="modal-overlay" id="donationModal">
         <div class="modal-card">
-
             <div class="modal-header">
-
                 <div>
-
-                    <span class="small-label">
-                        REGISTRAR DOAÇÃO
-                    </span>
-
-                    <h2>
-                        Quero ajudar
-                    </h2>
-
+                    <span class="small-label">REGISTRAR DOAÇÃO</span>
+                    <h2>Quero ajudar</h2>
                 </div>
 
-                <button
-                    type="button"
-                    class="icon-button"
-                    id="closeDonationModal"
-                >
+                <button type="button" class="icon-button" id="closeDonationModal">
                     ✕
                 </button>
-
             </div>
 
-
-            <div
-                class="selected-item"
-                id="selectedItemInfo"
-            >
-            </div>
-
+            <div class="selected-item" id="selectedItemInfo"></div>
 
             <form id="donationForm">
-
-                <input
-                    type="hidden"
-                    id="donationItemId"
-                >
-
+                <input type="hidden" id="donationItemId">
 
                 <div class="form-group">
-
-                    <label for="donorName">
-                        Seu nome
-                    </label>
-
+                    <label for="donorName">Seu nome</label>
                     <input
                         type="text"
                         id="donorName"
                         placeholder="Digite seu nome"
-                        maxlength="80"
+                        maxlength="100"
                         required
                     >
-
                 </div>
 
-
                 <div class="form-group">
-
-                    <label for="donorQuantity">
-                        Quantidade que deseja doar
-                    </label>
-
+                    <label for="donorQuantity">Quantidade que deseja doar</label>
                     <input
                         type="number"
                         id="donorQuantity"
@@ -298,39 +212,21 @@
                     >
 
                     <small id="quantityHelp"></small>
-
                 </div>
 
+                <p class="form-error" id="donationError"></p>
 
-                <p
-                    class="form-error"
-                    id="donationError"
-                ></p>
-
-
-                <button
-                    type="submit"
-                    class="primary-button full-button big-button"
-                >
-                    ❤ Confirmar minha doação
+                <button type="submit" class="primary-button full-button big-button">
+                    ♡ Confirmar minha doação
                 </button>
-
             </form>
 
-
             <p class="modal-note">
-                Obrigado por fazer parte desta campanha. ❤
+                Obrigado por fazer parte deste propósito. ♡
             </p>
-
         </div>
-
     </div>
 
-
-    <!-- TOAST -->
-
     <div id="toast" class="toast"></div>
-
 </body>
-
 </html>
