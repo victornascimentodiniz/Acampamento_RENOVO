@@ -1,6 +1,6 @@
 /* =========================================================
-   CONFIGURAÇÃO DO SUPABASE
-   ACAMPAMENTO RENOVO
+   SUPABASE - ACAMPAMENTO RENOVO
+   Use SOMENTE a Publishable Key no navegador.
 ========================================================= */
 
 const SUPABASE_URL =
@@ -9,18 +9,15 @@ const SUPABASE_URL =
 const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_rqveXjLAEhEaA309HlC2hQ_a7Pd2INL";
 
-
-/* =========================================================
-   CRIAR CONEXÃO COM O SUPABASE
-========================================================= */
-
 window.supabaseClient =
     window.supabase.createClient(
         SUPABASE_URL,
-        SUPABASE_PUBLISHABLE_KEY
+        SUPABASE_PUBLISHABLE_KEY,
+        {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: true
+            }
+        }
     );
-
-
-console.log(
-    "Supabase conectado com sucesso!"
-);
