@@ -30,6 +30,14 @@
                     Ver página pública
                 </a>
 
+                <button
+                    type="button"
+                    class="secondary-button"
+                    id="btnMinhaConta"
+                >
+                    Minha conta
+                </button>
+
                 <button class="danger-outline-button" id="logoutAdmin">
                     Sair
                 </button>
@@ -210,6 +218,79 @@
             </article>
         </section>
     </main>
+
+    <!-- MODAL MINHA CONTA / ALTERAR SENHA -->
+    <div class="modal-overlay" id="accountModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <span class="small-label">MINHA CONTA</span>
+                    <h2>Alterar senha</h2>
+                </div>
+
+                <button
+                    type="button"
+                    class="icon-button"
+                    id="closeAccountModal"
+                    aria-label="Fechar"
+                >
+                    ✕
+                </button>
+            </div>
+
+            <div class="account-user-info">
+                <span>Administrador conectado</span>
+                <strong id="accountEmail">-</strong>
+            </div>
+
+            <form id="changePasswordForm">
+                <div class="form-group">
+                    <label for="currentPassword">Senha atual</label>
+                    <input
+                        type="password"
+                        id="currentPassword"
+                        autocomplete="current-password"
+                        placeholder="Digite sua senha atual"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="newPassword">Nova senha</label>
+                    <input
+                        type="password"
+                        id="newPassword"
+                        autocomplete="new-password"
+                        minlength="8"
+                        placeholder="Mínimo de 8 caracteres"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmNewPassword">Confirmar nova senha</label>
+                    <input
+                        type="password"
+                        id="confirmNewPassword"
+                        autocomplete="new-password"
+                        minlength="8"
+                        placeholder="Digite novamente a nova senha"
+                        required
+                    >
+                </div>
+
+                <p class="form-error" id="changePasswordError"></p>
+
+                <button
+                    type="submit"
+                    class="primary-button full-button"
+                    id="btnChangePassword"
+                >
+                    Salvar nova senha
+                </button>
+            </form>
+        </div>
+    </div>
 
     <div id="toast" class="toast"></div>
 </body>
