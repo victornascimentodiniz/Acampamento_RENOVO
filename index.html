@@ -1,1253 +1,140 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta name="description" content="Acampamento RENOVO 2026 - Campanha de doações e lista de participantes.">
     <title>Acampamento RENOVO | Campanha de Doações</title>
-
-    <style>
-
-        /* =====================================================
-           CONFIGURAÇÕES
-        ===================================================== */
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --verde-escuro: #164b32;
-            --verde: #1f6b46;
-            --verde-claro: #e7f1eb;
-
-            --vermelho: #9e2a2b;
-            --vermelho-claro: #f8e8e8;
-
-            --dourado: #c6a15b;
-
-            --branco: #ffffff;
-            --fundo: #f4f6f4;
-
-            --texto: #1d2923;
-            --texto-claro: #69736d;
-
-            --borda: #dfe6e1;
-
-            --sombra:
-                0 20px 60px rgba(21, 75, 50, 0.12);
-        }
-
-
-        body {
-            min-height: 100vh;
-
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
-            background:
-                radial-gradient(
-                    circle at top left,
-                    rgba(31, 107, 70, 0.12),
-                    transparent 35%
-                ),
-                radial-gradient(
-                    circle at bottom right,
-                    rgba(158, 42, 43, 0.08),
-                    transparent 35%
-                ),
-                var(--fundo);
-
-            color: var(--texto);
-        }
-
-
-        button,
-        input {
-            font-family: inherit;
-        }
-
-
-        button {
-            cursor: pointer;
-        }
-
-
-        /* =====================================================
-           CABEÇALHO
-        ===================================================== */
-
-        .topo {
-            width: 100%;
-
-            padding: 20px 30px;
-
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-
-            position: absolute;
-            top: 0;
-            left: 0;
-
-            z-index: 10;
-        }
-
-
-        .marca {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-
-        .marca-simbolo {
-            width: 45px;
-            height: 45px;
-
-            border-radius: 12px;
-
-            background: var(--verde-escuro);
-
-            color: white;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            font-size: 24px;
-        }
-
-
-        .marca-texto strong {
-            display: block;
-
-            color: var(--verde-escuro);
-
-            font-size: 15px;
-        }
-
-
-        .marca-texto span {
-            font-size: 11px;
-            color: var(--texto-claro);
-        }
-
-
-        .tag-renovo {
-            padding: 8px 14px;
-
-            border-radius: 30px;
-
-            background: var(--verde-claro);
-
-            color: var(--verde-escuro);
-
-            font-size: 11px;
-
-            font-weight: bold;
-
-            letter-spacing: 1px;
-        }
-
-
-        /* =====================================================
-           ÁREA PRINCIPAL
-        ===================================================== */
-
-        .pagina {
-            min-height: 100vh;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            padding: 110px 20px 50px;
-        }
-
-
-        .card-principal {
-            width: 100%;
-            max-width: 920px;
-
-            background:
-                rgba(255, 255, 255, 0.97);
-
-            border:
-                1px solid rgba(22, 75, 50, 0.10);
-
-            border-radius: 30px;
-
-            padding: 45px;
-
-            box-shadow: var(--sombra);
-        }
-
-
-        /* =====================================================
-           CABEÇALHO DO CARD
-        ===================================================== */
-
-        .cabecalho-card {
-            text-align: center;
-
-            max-width: 680px;
-
-            margin: 0 auto 35px;
-        }
-
-
-        .icone-principal {
-            width: 78px;
-            height: 78px;
-
-            margin: 0 auto 18px;
-
-            border-radius: 22px;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    var(--verde-escuro),
-                    var(--verde)
-                );
-
-            color: white;
-
-            font-size: 35px;
-
-            box-shadow:
-                0 12px 30px
-                rgba(22, 75, 50, 0.25);
-        }
-
-
-        .mini-titulo {
-            color: var(--vermelho);
-
-            font-size: 12px;
-
-            font-weight: 800;
-
-            letter-spacing: 1.8px;
-        }
-
-
-        .cabecalho-card h1 {
-            color: var(--verde-escuro);
-
-            margin-top: 8px;
-
-            font-size:
-                clamp(31px, 5vw, 48px);
-
-            line-height: 1.05;
-
-            letter-spacing: -1.5px;
-        }
-
-
-        .cabecalho-card h1 span {
-            color: var(--vermelho);
-        }
-
-
-        .cabecalho-card h2 {
-            margin-top: 10px;
-
-            color: var(--texto);
-
-            font-size: 19px;
-
-            font-weight: 600;
-        }
-
-
-        .cabecalho-card p {
-            max-width: 590px;
-
-            margin: 13px auto 0;
-
-            color: var(--texto-claro);
-
-            font-size: 15px;
-
-            line-height: 1.7;
-        }
-
-
-        /* =====================================================
-           VERSÍCULO / MENSAGEM
-        ===================================================== */
-
-        .mensagem {
-            background:
-                linear-gradient(
-                    135deg,
-                    #f0f6f2,
-                    #fafcfb
-                );
-
-            border-left:
-                4px solid var(--verde);
-
-            border-radius: 12px;
-
-            padding: 15px 18px;
-
-            margin-bottom: 28px;
-
-            text-align: center;
-
-            color: var(--verde-escuro);
-
-            font-size: 14px;
-
-            font-weight: 600;
-        }
-
-
-        /* =====================================================
-           OPÇÕES
-        ===================================================== */
-
-        .opcoes {
-            display: grid;
-
-            grid-template-columns:
-                repeat(2, 1fr);
-
-            gap: 18px;
-        }
-
-
-        .opcao {
-            min-height: 180px;
-
-            padding: 25px;
-
-            background: white;
-
-            border:
-                1px solid var(--borda);
-
-            border-radius: 20px;
-
-            text-align: left;
-
-            position: relative;
-
-            display: flex;
-            gap: 16px;
-
-            transition:
-                transform 0.25s,
-                box-shadow 0.25s,
-                border-color 0.25s;
-        }
-
-
-        .opcao:hover {
-            transform: translateY(-5px);
-
-            box-shadow:
-                0 18px 40px
-                rgba(22, 75, 50, 0.12);
-        }
-
-
-        .opcao-doacao:hover {
-            border-color: var(--verde);
-        }
-
-
-        .opcao-admin:hover {
-            border-color: var(--vermelho);
-        }
-
-
-        .icone-opcao {
-            width: 52px;
-            height: 52px;
-
-            min-width: 52px;
-
-            border-radius: 15px;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            font-size: 23px;
-        }
-
-
-        .opcao-doacao .icone-opcao {
-            color: var(--verde-escuro);
-
-            background:
-                var(--verde-claro);
-        }
-
-
-        .opcao-admin .icone-opcao {
-            color: var(--vermelho);
-
-            background:
-                var(--vermelho-claro);
-        }
-
-
-        .conteudo-opcao h3 {
-            color: var(--texto);
-
-            font-size: 20px;
-
-            margin-bottom: 8px;
-        }
-
-
-        .conteudo-opcao p {
-            color: var(--texto-claro);
-
-            font-size: 13px;
-
-            line-height: 1.6;
-
-            padding-right: 20px;
-        }
-
-
-        .seta {
-            position: absolute;
-
-            bottom: 18px;
-            right: 20px;
-
-            font-size: 24px;
-
-            color: var(--verde);
-        }
-
-
-        .opcao-admin .seta {
-            color: var(--vermelho);
-        }
-
-
-        /* =====================================================
-           LOGIN ADMIN
-        ===================================================== */
-
-        .area-login {
-            display: none;
-
-            margin-top: 25px;
-
-            border:
-                1px solid var(--borda);
-
-            background:
-                #f8faf8;
-
-            border-radius: 20px;
-
-            padding: 25px;
-        }
-
-
-        .area-login.ativo {
-            display: block;
-
-            animation:
-                aparecer 0.3s ease;
-        }
-
-
-        .login-topo {
-            display: flex;
-
-            justify-content: space-between;
-
-            align-items: flex-start;
-
-            margin-bottom: 22px;
-        }
-
-
-        .login-topo span {
-            display: block;
-
-            color: var(--vermelho);
-
-            font-size: 10px;
-
-            font-weight: bold;
-
-            letter-spacing: 1.5px;
-
-            margin-bottom: 4px;
-        }
-
-
-        .login-topo h3 {
-            color: var(--verde-escuro);
-
-            font-size: 21px;
-        }
-
-
-        .fechar {
-            width: 36px;
-            height: 36px;
-
-            border: none;
-
-            border-radius: 50%;
-
-            background: #e9eeea;
-
-            color: #4d5851;
-
-            font-weight: bold;
-        }
-
-
-        .grupo-campo {
-            margin-bottom: 15px;
-        }
-
-
-        .grupo-campo label {
-            display: block;
-
-            margin-bottom: 8px;
-
-            color: var(--texto);
-
-            font-size: 13px;
-
-            font-weight: 700;
-        }
-
-
-        .campo-senha {
-            position: relative;
-        }
-
-
-        .campo-senha input {
-            width: 100%;
-
-            height: 52px;
-
-            padding: 0 95px 0 16px;
-
-            border:
-                1px solid var(--borda);
-
-            border-radius: 12px;
-
-            outline: none;
-
-            background: white;
-
-            color: var(--texto);
-
-            font-size: 15px;
-
-            transition: 0.2s;
-        }
-
-
-        .campo-senha input:focus {
-            border-color:
-                var(--verde);
-
-            box-shadow:
-                0 0 0 4px
-                rgba(31, 107, 70, 0.10);
-        }
-
-
-        .mostrar-senha {
-            position: absolute;
-
-            top: 50%;
-            right: 12px;
-
-            transform:
-                translateY(-50%);
-
-            border: none;
-
-            background: none;
-
-            color: var(--verde-escuro);
-
-            font-size: 12px;
-
-            font-weight: bold;
-        }
-
-
-        .erro {
-            min-height: 21px;
-
-            margin-bottom: 8px;
-
-            color: var(--vermelho);
-
-            font-size: 13px;
-
-            font-weight: 600;
-        }
-
-
-        .botao-entrar {
-            width: 100%;
-
-            height: 52px;
-
-            border: none;
-
-            border-radius: 12px;
-
-            color: white;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    var(--verde-escuro),
-                    var(--verde)
-                );
-
-            font-weight: bold;
-
-            font-size: 15px;
-
-            transition: 0.2s;
-        }
-
-
-        .botao-entrar:hover {
-            transform:
-                translateY(-1px);
-
-            box-shadow:
-                0 10px 25px
-                rgba(22, 75, 50, 0.25);
-        }
-
-
-        /* =====================================================
-           RODAPÉ
-        ===================================================== */
-
-        .rodape {
-            margin-top: 30px;
-
-            padding-top: 20px;
-
-            border-top:
-                1px solid var(--borda);
-
-            text-align: center;
-
-            color: var(--texto-claro);
-
-            font-size: 12px;
-        }
-
-
-        .rodape strong {
-            color: var(--verde-escuro);
-        }
-
-
-        /* =====================================================
-           ANIMAÇÃO
-        ===================================================== */
-
-        @keyframes aparecer {
-
-            from {
-                opacity: 0;
-
-                transform:
-                    translateY(-10px);
-            }
-
-            to {
-                opacity: 1;
-
-                transform:
-                    translateY(0);
-            }
-        }
-
-
-        /* =====================================================
-           CELULAR
-        ===================================================== */
-
-        @media(max-width: 700px) {
-
-            .topo {
-                padding:
-                    15px 18px;
-            }
-
-
-            .tag-renovo {
-                display: none;
-            }
-
-
-            .pagina {
-                padding:
-                    90px 15px 30px;
-            }
-
-
-            .card-principal {
-                padding:
-                    30px 20px;
-
-                border-radius: 23px;
-            }
-
-
-            .opcoes {
-                grid-template-columns: 1fr;
-            }
-
-
-            .opcao {
-                min-height: 150px;
-            }
-
-
-            .cabecalho-card h1 {
-                font-size: 34px;
-            }
-
-        }
-
-    </style>
+    <link rel="stylesheet" href="style.css">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="supabase-config.js"></script>
+    <script defer src="app.js"></script>
 </head>
 
+<body data-page="login" class="login-page">
+    <header class="landing-header">
+        <a class="landing-brand" href="index.html">
+            <span class="landing-brand-icon">✝</span>
+            <span>
+                <strong>Acampamento RENOVO</strong>
+                <small>Campanha de Doações • 2026</small>
+            </span>
+        </a>
 
-<body>
-
-
-    <!-- =====================================================
-         CABEÇALHO
-    ====================================================== -->
-
-    <header class="topo">
-
-        <div class="marca">
-
-            <div class="marca-simbolo">
-                ✝
-            </div>
-
-            <div class="marca-texto">
-
-                <strong>
-                    Acampamento RENOVO
-                </strong>
-
-                <span>
-                    Campanha de Doações
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <div class="tag-renovo">
-            RENOVO 2026
-        </div>
-
+        <span class="landing-badge">RENOVO 2026</span>
     </header>
 
+    <main class="login-container">
+        <section class="login-card renovo-login-card">
+            <div class="brand-icon">♡</div>
 
-    <!-- =====================================================
-         CONTEÚDO
-    ====================================================== -->
+            <span class="eyebrow">CAMPANHA SOLIDÁRIA</span>
 
-    <main class="pagina">
+            <h1>Acampamento <span class="text-red">RENOVO</span></h1>
 
-        <section class="card-principal">
+            <p class="login-description">
+                Ajude-nos na preparação do Acampamento RENOVO.
+                Você pode contribuir com os itens necessários e também
+                confirmar quem participará do acampamento.
+            </p>
 
-
-            <!-- APRESENTAÇÃO -->
-
-            <div class="cabecalho-card">
-
-                <div class="icone-principal">
-                    ♡
-                </div>
-
-                <span class="mini-titulo">
-                    CAMPANHA SOLIDÁRIA
-                </span>
-
-                <h1>
-                    Acampamento
-                    <span>RENOVO</span>
-                </h1>
-
-                <h2>
-                    Campanha de Doações
-                </h2>
-
-                <p>
-                    Ajude-nos na preparação do nosso
-                    Acampamento RENOVO.
-                    Cada contribuição é importante para
-                    que possamos proporcionar um momento
-                    especial de comunhão, aprendizado e
-                    crescimento espiritual.
-                </p>
-
+            <div class="purpose-message">
+                ♡ Cada contribuição faz parte deste propósito.
             </div>
 
-
-            <!-- MENSAGEM -->
-
-            <div class="mensagem">
-
-                ♡ Escolha um item, informe sua doação
-                e faça parte deste propósito.
-
-            </div>
-
-
-            <!-- OPÇÕES -->
-
-            <div class="opcoes">
-
-
-                <!-- USUÁRIO -->
-
-                <button
-                    type="button"
-                    class="opcao opcao-doacao"
-                    id="btnDoar"
-                >
-
-                    <div class="icone-opcao">
-                        ♡
-                    </div>
-
-
-                    <div class="conteudo-opcao">
-
-                        <h3>
-                            Quero Doar
-                        </h3>
-
-                        <p>
-                            Veja os itens que precisamos
-                            para o Acampamento RENOVO e
-                            escolha o que deseja doar.
-                        </p>
-
-                    </div>
-
-
-                    <span class="seta">
-                        →
-                    </span>
-
-                </button>
-
-
-                <!-- ADMINISTRADOR -->
-
-                <button
-                    type="button"
-                    class="opcao opcao-admin"
-                    id="btnAdmin"
-                >
-
-                    <div class="icone-opcao">
-                        ⚙
-                    </div>
-
-
-                    <div class="conteudo-opcao">
-
-                        <h3>
-                            Administrador
-                        </h3>
-
-                        <p>
-                            Área reservada para cadastrar
-                            itens, definir quantidades e
-                            acompanhar as doações.
-                        </p>
-
-                    </div>
-
-
-                    <span class="seta">
-                        →
-                    </span>
-
-                </button>
-
-            </div>
-
-
-            <!-- =================================================
-                 LOGIN ADMINISTRADOR
-            ================================================== -->
-
-            <div
-                class="area-login"
-                id="areaLogin"
-            >
-
-                <div class="login-topo">
+            <div class="role-grid">
+                <button type="button" class="role-card role-user" id="btnDoar">
+                    <div class="role-icon">♡</div>
 
                     <div>
-
-                        <span>
-                            ACESSO RESTRITO
-                        </span>
-
-                        <h3>
-                            Painel do Administrador
-                        </h3>
-
+                        <h2>Quero participar / doar</h2>
+                        <p>
+                            Veja os itens necessários, registre sua doação
+                            e adicione nomes à lista do acampamento.
+                        </p>
                     </div>
 
+                    <span class="role-arrow">→</span>
+                </button>
 
-                    <button
-                        type="button"
-                        class="fechar"
-                        id="btnFechar"
-                    >
+                <button type="button" class="role-card role-admin" id="btnAdmin">
+                    <div class="role-icon">⚙</div>
+
+                    <div>
+                        <h2>Administrador</h2>
+                        <p>
+                            Cadastre itens, acompanhe doações e gerencie
+                            a lista de participantes.
+                        </p>
+                    </div>
+
+                    <span class="role-arrow">→</span>
+                </button>
+            </div>
+
+            <div class="admin-login-box" id="areaLogin">
+                <div class="admin-login-header">
+                    <div>
+                        <span class="small-label">ACESSO RESTRITO</span>
+                        <h3>Painel do Administrador</h3>
+                    </div>
+
+                    <button type="button" class="icon-button" id="btnFechar" aria-label="Fechar">
                         ✕
                     </button>
-
                 </div>
 
-
                 <form id="formLogin">
+                    <div class="form-group">
+                        <label for="adminEmail">E-mail do administrador</label>
+                        <input
+                            type="email"
+                            id="adminEmail"
+                            placeholder="E-mail cadastrado no Supabase"
+                            autocomplete="username"
+                            required
+                        >
+                    </div>
 
-                    <div class="grupo-campo">
+                    <div class="form-group">
+                        <label for="senha">Senha</label>
 
-                        <label for="senha">
-                            Senha do administrador
-                        </label>
-
-
-                        <div class="campo-senha">
-
+                        <div class="password-field">
                             <input
                                 type="password"
                                 id="senha"
-                                placeholder="Digite a senha"
-                                autocomplete="off"
+                                placeholder="Digite sua senha"
+                                autocomplete="current-password"
                                 required
                             >
 
-
-                            <button
-                                type="button"
-                                class="mostrar-senha"
-                                id="btnMostrarSenha"
-                            >
+                            <button type="button" class="password-toggle" id="btnMostrarSenha">
                                 Mostrar
                             </button>
-
                         </div>
-
                     </div>
 
+                    <p class="form-error" id="erroLogin"></p>
 
-                    <div
-                        class="erro"
-                        id="erroLogin"
-                    >
-                    </div>
-
-
-                    <button
-                        type="submit"
-                        class="botao-entrar"
-                    >
+                    <button type="submit" class="primary-button full-button" id="btnEntrar">
                         Entrar no painel
                     </button>
-
                 </form>
 
+                <p class="login-security-note">
+                    Use o mesmo e-mail e a mesma senha do usuário criado em
+                    <strong>Supabase → Autenticação → Usuários</strong>.
+                </p>
             </div>
 
-
-            <!-- RODAPÉ -->
-
-            <div class="rodape">
-
-                <strong>
-                    Acampamento RENOVO
-                </strong>
-
-                <br>
-
-                Unidos em comunhão,
-                serviço e propósito.
-
+            <div class="login-footer">
+                <span>✝</span>
+                <p>Acampamento RENOVO • comunhão, serviço e propósito.</p>
             </div>
-
         </section>
-
     </main>
 
-
-    <!-- =====================================================
-         JAVASCRIPT
-    ====================================================== -->
-
-    <script>
-
-        /* SENHA DO ADMINISTRADOR */
-
-        const SENHA_ADMIN =
-            "terrao";
-
-
-        /* ELEMENTOS */
-
-        const btnDoar =
-            document.getElementById(
-                "btnDoar"
-            );
-
-
-        const btnAdmin =
-            document.getElementById(
-                "btnAdmin"
-            );
-
-
-        const areaLogin =
-            document.getElementById(
-                "areaLogin"
-            );
-
-
-        const btnFechar =
-            document.getElementById(
-                "btnFechar"
-            );
-
-
-        const formLogin =
-            document.getElementById(
-                "formLogin"
-            );
-
-
-        const senha =
-            document.getElementById(
-                "senha"
-            );
-
-
-        const erroLogin =
-            document.getElementById(
-                "erroLogin"
-            );
-
-
-        const btnMostrarSenha =
-            document.getElementById(
-                "btnMostrarSenha"
-            );
-
-
-        /* =====================================================
-           QUERO DOAR
-        ====================================================== */
-
-        btnDoar.addEventListener(
-            "click",
-            function () {
-
-                window.location.href =
-                    "./igreja.html";
-
-            }
-        );
-
-
-        /* =====================================================
-           ADMINISTRADOR
-        ====================================================== */
-
-        btnAdmin.addEventListener(
-            "click",
-            function () {
-
-                areaLogin.classList.add(
-                    "ativo"
-                );
-
-
-                erroLogin.textContent =
-                    "";
-
-
-                setTimeout(
-                    function () {
-
-                        senha.focus();
-
-                    },
-                    150
-                );
-
-
-                areaLogin.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center"
-                });
-
-            }
-        );
-
-
-        /* =====================================================
-           FECHAR LOGIN
-        ====================================================== */
-
-        btnFechar.addEventListener(
-            "click",
-            function () {
-
-                areaLogin.classList.remove(
-                    "ativo"
-                );
-
-
-                senha.value = "";
-
-
-                erroLogin.textContent =
-                    "";
-
-            }
-        );
-
-
-        /* =====================================================
-           MOSTRAR SENHA
-        ====================================================== */
-
-        btnMostrarSenha.addEventListener(
-            "click",
-            function () {
-
-                if (
-                    senha.type ===
-                    "password"
-                ) {
-
-                    senha.type =
-                        "text";
-
-
-                    btnMostrarSenha.textContent =
-                        "Ocultar";
-
-                } else {
-
-                    senha.type =
-                        "password";
-
-
-                    btnMostrarSenha.textContent =
-                        "Mostrar";
-                }
-
-            }
-        );
-
-
-        /* =====================================================
-           VALIDAR LOGIN
-        ====================================================== */
-
-        formLogin.addEventListener(
-            "submit",
-            function (event) {
-
-                event.preventDefault();
-
-
-                const senhaDigitada =
-                    senha.value.trim();
-
-
-                if (
-                    senhaDigitada ===
-                    SENHA_ADMIN
-                ) {
-
-                    /*
-                     * Salva uma identificação simples
-                     * para a página administrador.html
-                     */
-
-                    sessionStorage.setItem(
-                        "adminAutenticado",
-                        "true"
-                    );
-
-
-                    /*
-                     * ENVIA PARA O ADMINISTRADOR
-                     */
-
-                    window.location.href =
-                        "./administrador.html";
-
-                } else {
-
-                    erroLogin.textContent =
-                        "Senha incorreta. Verifique e tente novamente.";
-
-
-                    senha.focus();
-
-
-                    senha.select();
-
-                }
-
-            }
-        );
-
-    </script>
-
-
+    <div id="toast" class="toast"></div>
 </body>
-
 </html>
