@@ -1,239 +1,122 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Painel do Administrador</title>
+    <meta name="description" content="Painel administrativo do Acampamento RENOVO 2026.">
+    <title>Administrador | Acampamento RENOVO</title>
 
     <link rel="stylesheet" href="style.css">
 
-    <script src="app.js" defer></script>
-
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="supabase-config.js"></script>
+    <script defer src="app.js"></script>
 </head>
 
 <body data-page="admin">
-
-    <!-- CABEÇALHO -->
-
     <header class="topbar">
-
         <div class="topbar-container">
-
             <a href="administrador.html" class="brand">
-
-                <div class="brand-mini-icon">
-                    ❤
-                </div>
+                <div class="brand-mini-icon">✝</div>
 
                 <div>
-                    <strong>Campanha Solidária</strong>
-                    <span>Painel Administrativo</span>
+                    <strong>Acampamento RENOVO</strong>
+                    <span>Painel Administrativo • 2026</span>
                 </div>
-
             </a>
 
             <div class="topbar-actions">
-
-                <a
-                    href="igreja.html"
-                    class="secondary-button"
-                >
+                <a href="igreja.html" class="secondary-button">
                     Ver página pública
                 </a>
 
-                <button
-                    class="danger-outline-button"
-                    id="logoutAdmin"
-                >
+                <button class="danger-outline-button" id="logoutAdmin">
                     Sair
                 </button>
-
             </div>
-
         </div>
-
     </header>
 
-
     <main class="page-container">
-
-        <!-- APRESENTAÇÃO -->
-
         <section class="page-hero">
-
             <div>
-
-                <span class="eyebrow">
-                    ADMINISTRAÇÃO
-                </span>
-
-                <h1>
-                    Painel de Doações
-                </h1>
-
+                <span class="eyebrow">ADMINISTRAÇÃO</span>
+                <h1>Painel do Acampamento RENOVO</h1>
                 <p>
-                    Cadastre os itens necessários e acompanhe
-                    o progresso das doações.
+                    Cadastre os itens necessários, acompanhe as doações
+                    e gerencie os participantes.
                 </p>
-
             </div>
-
         </section>
-
-
-        <!-- ESTATÍSTICAS -->
 
         <section class="stats-grid">
-
             <article class="stat-card">
-
-                <div class="stat-icon">
-                    📦
-                </div>
-
+                <div class="stat-icon">📦</div>
                 <div>
-
                     <span>Itens cadastrados</span>
-
-                    <strong id="statItens">
-                        0
-                    </strong>
-
+                    <strong id="statItens">0</strong>
                 </div>
-
             </article>
 
-
             <article class="stat-card">
-
-                <div class="stat-icon">
-                    🎯
-                </div>
-
+                <div class="stat-icon">🎯</div>
                 <div>
-
                     <span>Quantidade necessária</span>
-
-                    <strong id="statMeta">
-                        0
-                    </strong>
-
+                    <strong id="statMeta">0</strong>
                 </div>
-
             </article>
 
-
             <article class="stat-card">
-
-                <div class="stat-icon">
-                    ❤
-                </div>
-
+                <div class="stat-icon">♡</div>
                 <div>
-
                     <span>Total doado</span>
-
-                    <strong id="statDoado">
-                        0
-                    </strong>
-
+                    <strong id="statDoado">0</strong>
                 </div>
-
             </article>
-
 
             <article class="stat-card">
-
-                <div class="stat-icon">
-                    ✓
-                </div>
-
+                <div class="stat-icon">✓</div>
                 <div>
-
                     <span>Metas concluídas</span>
-
-                    <strong id="statConcluidos">
-                        0
-                    </strong>
-
+                    <strong id="statConcluidos">0</strong>
                 </div>
-
             </article>
-
         </section>
 
-
-        <!-- CADASTRO -->
-
         <section class="admin-layout">
-
             <article class="panel-card cadastro-card">
-
                 <div class="panel-header">
-
                     <div>
-
-                        <span class="small-label">
-                            NOVO ITEM
-                        </span>
-
-                        <h2>
-                            Adicionar item para doação
-                        </h2>
-
+                        <span class="small-label">NOVO ITEM</span>
+                        <h2>Adicionar item para doação</h2>
                     </div>
 
-                    <div class="panel-icon">
-                        ＋
-                    </div>
-
+                    <div class="panel-icon">＋</div>
                 </div>
 
-
                 <form id="itemForm">
-
                     <div class="form-group">
-
-                        <label for="itemNome">
-                            Nome do item
-                        </label>
-
+                        <label for="itemNome">Nome do item</label>
                         <input
                             type="text"
                             id="itemNome"
                             placeholder="Ex.: Arroz"
-                            maxlength="80"
+                            maxlength="100"
                             required
                         >
-
                     </div>
 
-
                     <div class="form-group">
-
-                        <label for="itemDescricao">
-                            Descrição
-                        </label>
-
+                        <label for="itemDescricao">Descrição</label>
                         <textarea
                             id="itemDescricao"
                             placeholder="Ex.: Pacote de arroz de 5 kg"
-                            maxlength="200"
+                            maxlength="250"
                         ></textarea>
-
                     </div>
 
-
                     <div class="form-group">
-
-                        <label for="itemQuantidade">
-                            Quantidade necessária
-                        </label>
-
+                        <label for="itemQuantidade">Quantidade necessária</label>
                         <input
                             type="number"
                             id="itemQuantidade"
@@ -242,160 +125,92 @@
                             placeholder="Ex.: 30"
                             required
                         >
-
                     </div>
 
-
-                    <button
-                        type="submit"
-                        class="primary-button full-button"
-                    >
+                    <button type="submit" class="primary-button full-button">
                         + Adicionar item
                     </button>
-
                 </form>
-
             </article>
-
-
-            <!-- RESUMO -->
 
             <article class="panel-card info-card">
-
-                <span class="small-label">
-                    CAMPANHA
-                </span>
-
-                <h2>
-                    Como funciona?
-                </h2>
+                <span class="small-label">CAMPANHA</span>
+                <h2>Como funciona?</h2>
 
                 <div class="info-list">
-
                     <div class="info-item">
-
                         <span>1</span>
-
-                        <p>
-                            Cadastre o nome do produto e a quantidade necessária.
-                        </p>
-
+                        <p>Cadastre o produto e a quantidade necessária.</p>
                     </div>
 
                     <div class="info-item">
-
                         <span>2</span>
-
-                        <p>
-                            O item aparecerá automaticamente na página dos usuários.
-                        </p>
-
+                        <p>O item aparece para todos que abrirem o site.</p>
                     </div>
 
                     <div class="info-item">
-
                         <span>3</span>
-
-                        <p>
-                            Cada pessoa informa seu nome e a quantidade que deseja doar.
-                        </p>
-
+                        <p>O doador informa nome e quantidade.</p>
                     </div>
 
                     <div class="info-item">
-
                         <span>4</span>
-
-                        <p>
-                            O progresso será atualizado até atingir a meta.
-                        </p>
-
+                        <p>O Supabase salva tudo e atualiza o progresso da campanha.</p>
                     </div>
-
                 </div>
-
             </article>
-
         </section>
 
-
-        <!-- ITENS -->
-
         <section class="section-block">
-
             <div class="section-heading">
-
                 <div>
-
-                    <span class="eyebrow">
-                        ITENS
-                    </span>
-
-                    <h2>
-                        Itens da campanha
-                    </h2>
-
+                    <span class="eyebrow">ITENS</span>
+                    <h2>Itens da campanha</h2>
                 </div>
 
-                <button
-                    class="danger-outline-button"
-                    id="limparTodos"
-                >
-                    Limpar todos
+                <button class="danger-outline-button" id="limparTodos">
+                    Excluir todos os itens
                 </button>
-
             </div>
 
-
-            <div
-                class="items-grid"
-                id="adminItems"
-            >
-            </div>
-
+            <div class="items-grid" id="adminItems"></div>
         </section>
 
-
-        <!-- HISTÓRICO -->
-
+        <!-- PARTICIPANTES -->
         <section class="section-block">
-
             <div class="section-heading">
-
                 <div>
-
-                    <span class="eyebrow">
-                        MOVIMENTAÇÕES
-                    </span>
-
-                    <h2>
-                        Últimas doações
-                    </h2>
-
+                    <span class="eyebrow">ACAMPAMENTO RENOVO</span>
+                    <h2>Lista de Participantes</h2>
+                    <p>Pessoas que confirmaram presença no acampamento.</p>
                 </div>
 
+                <div class="participantes-total">
+                    <span>Total confirmado</span>
+                    <strong id="adminTotalParticipantes">0</strong>
+                </div>
             </div>
-
 
             <article class="panel-card">
-
-                <div
-                    class="history-list"
-                    id="donationHistory"
-                >
-                </div>
-
+                <div id="adminListaParticipantes" class="admin-participantes-list"></div>
             </article>
-
         </section>
 
+        <!-- HISTÓRICO -->
+        <section class="section-block">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">MOVIMENTAÇÕES</span>
+                    <h2>Últimas doações</h2>
+                </div>
+            </div>
+
+            <article class="panel-card">
+                <div class="history-list" id="donationHistory"></div>
+            </article>
+        </section>
     </main>
 
-
-    <!-- TOAST -->
-
     <div id="toast" class="toast"></div>
-
 </body>
-
 </html>
