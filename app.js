@@ -39,6 +39,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (page === "user") {
             await initUser();
         }
+
+        if (page === "reset-password") {
+            await initResetPassword();
+        }
     } catch (error) {
         console.error("Erro ao iniciar a aplicação:", error);
         showToast("Ocorreu um erro ao carregar o sistema.");
@@ -182,6 +186,7 @@ async function initLogin() {
     const btnMostrarSenha = document.getElementById("btnMostrarSenha");
     const erroLogin = document.getElementById("erroLogin");
     const btnEntrar = document.getElementById("btnEntrar");
+    const btnEsqueciSenha = document.getElementById("btnEsqueciSenha");
 
     btnDoar?.addEventListener("click", () => {
         window.location.href = "igreja.html";
@@ -219,6 +224,52 @@ async function initLogin() {
 
         passwordInput.type = showing ? "password" : "text";
         btnMostrarSenha.textContent = showing ? "Mostrar" : "Ocultar";
+    });
+
+    btnEsqueciSenha?.addEventListener("click", async () => {
+        const email = emailInput.value.trim();
+
+        if (!email) {
+            erroLogin.textContent =
+                "Digite primeiro o e-mail do administrador para receber o link.";
+            emailInput.focus();
+            return;
+        }
+
+        erroLogin.textContent = "";
+
+        setButtonLoading(
+            btnEsqueciSenha,
+            true,
+            "Esqueci minha senha",
+            "Enviando..."
+        );
+
+        const redirectTo =
+            "https://victornascimentodiniz.github.io/Acampamento_RENOVO/redefinir-senha.html";
+
+        const { error } =
+            await window.supabaseClient.auth.resetPasswordForEmail(
+                email,
+                { redirectTo }
+            );
+
+        setButtonLoading(
+            btnEsqueciSenha,
+            false,
+            "Esqueci minha senha"
+        );
+
+        if (error) {
+            console.error(error);
+            erroLogin.textContent =
+                "Não foi possível enviar o e-mail de recuperação. Tente novamente.";
+            return;
+        }
+
+        showToast(
+            "E-mail de recuperação enviado. Confira também a caixa de spam."
+        );
     });
 
     formLogin?.addEventListener("submit", async (event) => {
@@ -477,6 +528,17 @@ async function initAdmin() {
     const participantsContainer =
         document.getElementById("adminListaParticipantes");
 
+    const btnMinhaConta =
+        document.getElementById("btnMinhaConta");
+    const accountModal =
+        document.getElementById("accountModal");
+    const closeAccountModal =
+        document.getElementById("closeAccountModal");
+    const changePasswordForm =
+        document.getElementById("changePasswordForm");
+    const accountEmail =
+        document.getElementById("accountEmail");
+
     itemForm?.addEventListener("submit", async (event) => {
         event.preventDefault();
 
@@ -670,6 +732,114 @@ async function initAdmin() {
         await refreshAdminData();
 
         showToast("Todos os itens e suas doações foram excluídos.");
+    });
+
+    btnMinhaConta?.addEventListener("click", async () => {
+        const {
+            data: { user }
+        } = await window.supabaseClient.auth.getUser();
+
+        if (accountEmail) {
+            accountEmail.textContent = user?.email || "-";
+        }
+
+        accountModal?.classList.add("show");
+        document.body.style.overflow = "hidden";
+    });
+
+    closeAccountModal?.addEventListener("click", () => {
+        closeAccountPasswordModal();
+    });
+
+    accountModal?.addEventListener("click", (event) => {
+        if (event.target === accountModal) {
+            closeAccountPasswordModal();
+        }
+    });
+
+    changePasswordForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const currentPassword =
+            document.getElementById("currentPassword").value;
+
+        const newPassword =
+            document.getElementById("newPassword").value;
+
+        const confirmPassword =
+            document.getElementById("confirmNewPassword").value;
+
+        const errorElement =
+            document.getElementById("changePasswordError");
+
+        const submitButton =
+            document.getElementById("btnChangePassword");
+
+        errorElement.textContent = "";
+
+        if (newPassword.length < 8) {
+            errorElement.textContent =
+                "A nova senha precisa ter pelo menos 8 caracteres.";
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            errorElement.textContent =
+                "A confirmação da nova senha não confere.";
+            return;
+        }
+
+        if (currentPassword === newPassword) {
+            errorElement.textContent =
+                "Escolha uma senha diferente da senha atual.";
+            return;
+        }
+
+        setButtonLoading(
+            submitButton,
+            true,
+            "Salvar nova senha",
+            "Salvando..."
+        );
+
+        const { error } =
+            await window.supabaseClient.auth.updateUser({
+                password: newPassword,
+                current_password: currentPassword
+            });
+
+        setButtonLoading(
+            submitButton,
+            false,
+            "Salvar nova senha"
+        );
+
+        if (error) {
+            console.error(error);
+
+            const message =
+                (error.message || "").toLowerCase();
+
+            if (
+                message.includes("password") ||
+                message.includes("credential") ||
+                message.includes("invalid")
+            ) {
+                errorElement.textContent =
+                    "A senha atual está incorreta ou a nova senha não atende aos requisitos.";
+            } else {
+                errorElement.textContent =
+                    "Não foi possível alterar a senha. Tente novamente.";
+            }
+
+            return;
+        }
+
+        closeAccountPasswordModal();
+
+        showToast(
+            "Senha alterada com sucesso!"
+        );
     });
 
     logoutAdmin?.addEventListener("click", async () => {
@@ -994,6 +1164,155 @@ function renderParticipantsAdmin(participants) {
                 `
             )
             .join("");
+}
+
+
+function closeAccountPasswordModal() {
+    const modal =
+        document.getElementById("accountModal");
+
+    const form =
+        document.getElementById("changePasswordForm");
+
+    const error =
+        document.getElementById("changePasswordError");
+
+    modal?.classList.remove("show");
+    document.body.style.overflow = "";
+
+    form?.reset();
+
+    if (error) {
+        error.textContent = "";
+    }
+}
+
+
+/* =========================================================
+   RECUPERAÇÃO DE SENHA
+========================================================= */
+
+async function initResetPassword() {
+    const loading =
+        document.getElementById("resetLoading");
+
+    const form =
+        document.getElementById("resetPasswordForm");
+
+    const errorElement =
+        document.getElementById("resetPasswordError");
+
+    const showFormIfSessionExists = async () => {
+        const {
+            data: { session }
+        } = await window.supabaseClient.auth.getSession();
+
+        if (session) {
+            loading.textContent =
+                "Link validado. Defina sua nova senha abaixo.";
+
+            form?.classList.remove("hidden-form");
+            return true;
+        }
+
+        return false;
+    };
+
+    const alreadyReady =
+        await showFormIfSessionExists();
+
+    if (!alreadyReady) {
+        const {
+            data: { subscription }
+        } =
+            window.supabaseClient.auth.onAuthStateChange(
+                async (event) => {
+                    if (
+                        event === "PASSWORD_RECOVERY" ||
+                        event === "SIGNED_IN"
+                    ) {
+                        await showFormIfSessionExists();
+                    }
+                }
+            );
+
+        setTimeout(async () => {
+            const ready =
+                await showFormIfSessionExists();
+
+            if (!ready && loading) {
+                loading.textContent =
+                    "O link de recuperação é inválido ou expirou. " +
+                    "Solicite um novo link na página inicial.";
+            }
+        }, 2500);
+
+        window.addEventListener(
+            "beforeunload",
+            () => subscription?.unsubscribe()
+        );
+    }
+
+    form?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const password =
+            document.getElementById("resetNewPassword").value;
+
+        const confirmation =
+            document.getElementById("resetConfirmPassword").value;
+
+        const button =
+            document.getElementById("btnResetPassword");
+
+        errorElement.textContent = "";
+
+        if (password.length < 8) {
+            errorElement.textContent =
+                "A senha precisa ter pelo menos 8 caracteres.";
+            return;
+        }
+
+        if (password !== confirmation) {
+            errorElement.textContent =
+                "As duas senhas não são iguais.";
+            return;
+        }
+
+        setButtonLoading(
+            button,
+            true,
+            "Salvar nova senha",
+            "Salvando..."
+        );
+
+        const { error } =
+            await window.supabaseClient.auth.updateUser({
+                password
+            });
+
+        setButtonLoading(
+            button,
+            false,
+            "Salvar nova senha"
+        );
+
+        if (error) {
+            console.error(error);
+            errorElement.textContent =
+                "Não foi possível redefinir a senha. Solicite um novo link e tente novamente.";
+            return;
+        }
+
+        showToast(
+            "Senha redefinida com sucesso!"
+        );
+
+        setTimeout(async () => {
+            await window.supabaseClient.auth.signOut();
+            window.location.href = "index.html";
+        }, 1300);
+    });
 }
 
 
