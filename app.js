@@ -1,341 +1,459 @@
 /* =========================================================
-   CONFIGURAÇÕES
+   ACAMPAMENTO RENOVO
+   Aplicação conectada ao Supabase
 ========================================================= */
-
-const STORAGE_KEY = "campanhaDoacoesItens";
-
-const ADMIN_PASSWORD = "terrao";
 
 let toastTimeout;
+let currentItems = [];
+let currentParticipants = [];
+let realtimeChannel = null;
+let refreshTimer = null;
+let isRefreshing = false;
 
 
 /* =========================================================
-   BANCO LOCAL
+   INICIALIZAÇÃO
 ========================================================= */
 
-function getItems() {
+document.addEventListener("DOMContentLoaded", async () => {
+    if (!window.supabaseClient) {
+        console.error("Supabase não foi carregado.");
+        alert(
+            "Não foi possível conectar ao banco de dados. " +
+            "Verifique o arquivo supabase-config.js."
+        );
+        return;
+    }
+
+    const page = document.body.dataset.page;
 
     try {
-
-        const dados = localStorage.getItem(STORAGE_KEY);
-
-        if (!dados) {
-            return [];
+        if (page === "login") {
+            await initLogin();
         }
 
-        return JSON.parse(dados);
+        if (page === "admin") {
+            await initAdmin();
+        }
 
-    } catch (erro) {
-
-        console.error("Erro ao carregar dados:", erro);
-
-        return [];
+        if (page === "user") {
+            await initUser();
+        }
+    } catch (error) {
+        console.error("Erro ao iniciar a aplicação:", error);
+        showToast("Ocorreu um erro ao carregar o sistema.");
     }
-}
-
-
-function saveItems(items) {
-
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(items)
-    );
-}
+});
 
 
 /* =========================================================
-   FUNÇÕES AUXILIARES
+   UTILITÁRIOS
 ========================================================= */
 
-function createId() {
-
-    if (
-        typeof crypto !== "undefined" &&
-        crypto.randomUUID
-    ) {
-
-        return crypto.randomUUID();
-    }
-
-    return (
-        Date.now().toString() +
-        Math.random().toString(16).slice(2)
-    );
-}
-
-
-function escapeHTML(texto) {
-
-    if (!texto) {
+function escapeHTML(value) {
+    if (value === null || value === undefined) {
         return "";
     }
 
-    return String(texto)
-
+    return String(value)
         .replaceAll("&", "&amp;")
-
         .replaceAll("<", "&lt;")
-
         .replaceAll(">", "&gt;")
-
         .replaceAll('"', "&quot;")
-
         .replaceAll("'", "&#039;");
 }
 
 
-function formatDate(data) {
-
-    const date = new Date(data);
-
-    return date.toLocaleString(
-        "pt-BR",
-        {
-            dateStyle: "short",
-            timeStyle: "short"
-        }
-    );
-}
-
-
-function calculatePercentage(item) {
-
-    if (!item.meta) {
-        return 0;
+function formatDate(value) {
+    if (!value) {
+        return "";
     }
 
-    return Math.min(
-        100,
-        Math.round(
-            (item.doado / item.meta) * 100
-        )
-    );
-}
+    const date = new Date(value);
 
-
-function getRemaining(item) {
-
-    return Math.max(
-        0,
-        item.meta - item.doado
-    );
+    return date.toLocaleString("pt-BR", {
+        dateStyle: "short",
+        timeStyle: "short"
+    });
 }
 
 
 function showToast(message) {
-
-    const toast =
-        document.getElementById("toast");
+    const toast = document.getElementById("toast");
 
     if (!toast) {
         return;
     }
 
     toast.textContent = message;
-
     toast.classList.add("show");
 
     clearTimeout(toastTimeout);
 
     toastTimeout = setTimeout(() => {
-
         toast.classList.remove("show");
+    }, 3500);
+}
 
-    }, 3200);
+
+function calculatePercentage(item) {
+    if (!item || !item.meta) {
+        return 0;
+    }
+
+    return Math.min(
+        100,
+        Math.round((Number(item.doado || 0) / Number(item.meta)) * 100)
+    );
+}
+
+
+function getRemaining(item) {
+    return Math.max(
+        0,
+        Number(item.meta || 0) - Number(item.doado || 0)
+    );
+}
+
+
+function setButtonLoading(button, loading, normalText, loadingText = "Aguarde...") {
+    if (!button) {
+        return;
+    }
+
+    button.disabled = loading;
+    button.textContent = loading ? loadingText : normalText;
+}
+
+
+function friendlyDatabaseError(error, fallback) {
+    console.error(error);
+
+    if (!error) {
+        return fallback;
+    }
+
+    if (error.code === "23505") {
+        return "Esse nome já está cadastrado.";
+    }
+
+    if (error.message && error.message.includes("Quantidade maior")) {
+        return error.message;
+    }
+
+    return fallback;
 }
 
 
 /* =========================================================
-   IDENTIFICA QUAL PÁGINA ESTÁ ABERTA
+   AUTENTICAÇÃO
 ========================================================= */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
+async function isCurrentUserAdmin() {
+    const {
+        data: { session },
+        error: sessionError
+    } = await window.supabaseClient.auth.getSession();
 
-        const page =
-            document.body.dataset.page;
-
-        if (page === "login") {
-
-            initLogin();
-        }
-
-        if (page === "admin") {
-
-            initAdmin();
-        }
-
-        if (page === "user") {
-
-            initUser();
-        }
-
+    if (sessionError || !session) {
+        return false;
     }
-);
+
+    const { data, error } =
+        await window.supabaseClient.rpc("eh_administrador");
+
+    if (error) {
+        console.error("Erro ao verificar administrador:", error);
+        return false;
+    }
+
+    return data === true;
+}
+
+
+async function initLogin() {
+    const btnDoar = document.getElementById("btnDoar");
+    const btnAdmin = document.getElementById("btnAdmin");
+    const areaLogin = document.getElementById("areaLogin");
+    const btnFechar = document.getElementById("btnFechar");
+    const formLogin = document.getElementById("formLogin");
+    const emailInput = document.getElementById("adminEmail");
+    const passwordInput = document.getElementById("senha");
+    const btnMostrarSenha = document.getElementById("btnMostrarSenha");
+    const erroLogin = document.getElementById("erroLogin");
+    const btnEntrar = document.getElementById("btnEntrar");
+
+    btnDoar?.addEventListener("click", () => {
+        window.location.href = "igreja.html";
+    });
+
+    btnAdmin?.addEventListener("click", async () => {
+        const admin = await isCurrentUserAdmin();
+
+        if (admin) {
+            window.location.href = "administrador.html";
+            return;
+        }
+
+        areaLogin?.classList.add("show");
+        erroLogin.textContent = "";
+
+        setTimeout(() => {
+            emailInput?.focus();
+        }, 100);
+
+        areaLogin?.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+    });
+
+    btnFechar?.addEventListener("click", () => {
+        areaLogin?.classList.remove("show");
+        erroLogin.textContent = "";
+        passwordInput.value = "";
+    });
+
+    btnMostrarSenha?.addEventListener("click", () => {
+        const showing = passwordInput.type === "text";
+
+        passwordInput.type = showing ? "password" : "text";
+        btnMostrarSenha.textContent = showing ? "Mostrar" : "Ocultar";
+    });
+
+    formLogin?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        if (!email || !password) {
+            erroLogin.textContent = "Informe o e-mail e a senha.";
+            return;
+        }
+
+        erroLogin.textContent = "";
+
+        setButtonLoading(
+            btnEntrar,
+            true,
+            "Entrar no painel",
+            "Entrando..."
+        );
+
+        const { error: loginError } =
+            await window.supabaseClient.auth.signInWithPassword({
+                email,
+                password
+            });
+
+        if (loginError) {
+            erroLogin.textContent =
+                "E-mail ou senha incorretos. Confira o usuário criado no Supabase.";
+
+            setButtonLoading(
+                btnEntrar,
+                false,
+                "Entrar no painel"
+            );
+
+            passwordInput.select();
+            return;
+        }
+
+        const admin = await isCurrentUserAdmin();
+
+        if (!admin) {
+            await window.supabaseClient.auth.signOut();
+
+            erroLogin.textContent =
+                "Este usuário existe, mas não está cadastrado como administrador.";
+
+            setButtonLoading(
+                btnEntrar,
+                false,
+                "Entrar no painel"
+            );
+
+            return;
+        }
+
+        window.location.href = "administrador.html";
+    });
+}
 
 
 /* =========================================================
-   LOGIN
+   CONSULTAS AO BANCO
 ========================================================= */
 
-function initLogin() {
+async function fetchItemsWithDonations() {
+    const [
+        { data: itemRows, error: itemsError },
+        { data: donationRows, error: donationsError }
+    ] = await Promise.all([
+        window.supabaseClient
+            .from("itens")
+            .select("*")
+            .eq("ativo", true)
+            .order("criado_em", { ascending: false }),
 
-    const btnUsuario =
-        document.getElementById(
-            "btnUsuario"
-        );
+        window.supabaseClient
+            .from("doacoes")
+            .select("*")
+            .order("criado_em", { ascending: false })
+    ]);
 
-    const btnAdministrador =
-        document.getElementById(
-            "btnAdministrador"
-        );
+    if (itemsError) {
+        throw itemsError;
+    }
 
-    const adminLoginBox =
-        document.getElementById(
-            "adminLoginBox"
-        );
+    if (donationsError) {
+        throw donationsError;
+    }
 
-    const fecharAdminLogin =
-        document.getElementById(
-            "fecharAdminLogin"
-        );
+    const donationsByItem = new Map();
 
-    const adminLoginForm =
-        document.getElementById(
-            "adminLoginForm"
-        );
-
-    const adminPassword =
-        document.getElementById(
-            "adminPassword"
-        );
-
-    const loginError =
-        document.getElementById(
-            "loginError"
-        );
-
-    const togglePassword =
-        document.getElementById(
-            "togglePassword"
-        );
-
-
-    /* ENTRAR COMO USUÁRIO */
-
-    btnUsuario.addEventListener(
-        "click",
-        () => {
-
-            window.location.href =
-                "igreja.html";
+    for (const row of donationRows || []) {
+        if (!donationsByItem.has(row.item_id)) {
+            donationsByItem.set(row.item_id, []);
         }
-    );
+
+        donationsByItem.get(row.item_id).push({
+            id: row.id,
+            nome: row.nome_doador,
+            quantidade: Number(row.quantidade),
+            data: row.criado_em
+        });
+    }
+
+    return (itemRows || []).map((row) => {
+        const doacoes = donationsByItem.get(row.id) || [];
+
+        const doado = doacoes.reduce(
+            (total, donation) =>
+                total + Number(donation.quantidade || 0),
+            0
+        );
+
+        return {
+            id: row.id,
+            nome: row.nome,
+            descricao: row.descricao || "",
+            meta: Number(row.quantidade_necessaria),
+            doado,
+            ativo: row.ativo,
+            criadoEm: row.criado_em,
+            doacoes
+        };
+    });
+}
 
 
-    /* MOSTRAR LOGIN ADMIN */
+async function fetchParticipants() {
+    const { data, error } =
+        await window.supabaseClient
+            .from("participantes")
+            .select("*")
+            .order("criado_em", { ascending: true });
 
-    btnAdministrador.addEventListener(
-        "click",
-        () => {
+    if (error) {
+        throw error;
+    }
 
-            adminLoginBox.classList.add(
-                "show"
-            );
+    return (data || []).map((row) => ({
+        id: row.id,
+        nome: row.nome,
+        data: row.criado_em
+    }));
+}
 
-            loginError.textContent = "";
 
-            setTimeout(() => {
+/* =========================================================
+   ATUALIZAÇÃO AUTOMÁTICA
+========================================================= */
 
-                adminPassword.focus();
+function startLiveUpdates(page) {
+    stopLiveUpdates();
 
-            }, 100);
+    const refresh = async () => {
+        if (document.hidden || isRefreshing) {
+            return;
         }
-    );
 
+        isRefreshing = true;
 
-    /* FECHAR */
-
-    fecharAdminLogin.addEventListener(
-        "click",
-        () => {
-
-            adminLoginBox.classList.remove(
-                "show"
-            );
-
-            adminPassword.value = "";
-
-            loginError.textContent = "";
-        }
-    );
-
-
-    /* MOSTRAR / ESCONDER SENHA */
-
-    togglePassword.addEventListener(
-        "click",
-        () => {
-
-            if (
-                adminPassword.type ===
-                "password"
-            ) {
-
-                adminPassword.type =
-                    "text";
-
-                togglePassword.textContent =
-                    "Ocultar";
-
-            } else {
-
-                adminPassword.type =
-                    "password";
-
-                togglePassword.textContent =
-                    "Mostrar";
+        try {
+            if (page === "admin") {
+                await refreshAdminData();
             }
 
-        }
-    );
-
-
-    /* VALIDAR SENHA */
-
-    adminLoginForm.addEventListener(
-        "submit",
-        (event) => {
-
-            event.preventDefault();
-
-            const senha =
-                adminPassword.value.trim();
-
-            if (
-                senha ===
-                ADMIN_PASSWORD
-            ) {
-
-                sessionStorage.setItem(
-                    "adminAutenticado",
-                    "true"
-                );
-
-                window.location.href =
-                    "administrador.html";
-
-            } else {
-
-                loginError.textContent =
-                    "Senha incorreta. Tente novamente.";
-
-                adminPassword.select();
+            if (page === "user") {
+                await refreshUserData();
             }
-
+        } catch (error) {
+            console.error("Falha na atualização automática:", error);
+        } finally {
+            isRefreshing = false;
         }
-    );
+    };
+
+    realtimeChannel =
+        window.supabaseClient
+            .channel(`renovo-${page}-${Date.now()}`)
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "itens"
+                },
+                refresh
+            )
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "doacoes"
+                },
+                refresh
+            )
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "participantes"
+                },
+                refresh
+            )
+            .subscribe();
+
+    /*
+     * Mesmo que o Realtime ainda não esteja habilitado no painel,
+     * este timer mantém as páginas sincronizadas periodicamente.
+     */
+    refreshTimer = setInterval(refresh, 30000);
+
+    document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+            refresh();
+        }
+    });
+}
+
+
+function stopLiveUpdates() {
+    if (refreshTimer) {
+        clearInterval(refreshTimer);
+        refreshTimer = null;
+    }
+
+    if (realtimeChannel) {
+        window.supabaseClient.removeChannel(realtimeChannel);
+        realtimeChannel = null;
+    }
 }
 
 
@@ -343,1411 +461,895 @@ function initLogin() {
    ADMINISTRADOR
 ========================================================= */
 
-function initAdmin() {
+async function initAdmin() {
+    const admin = await isCurrentUserAdmin();
 
-    /* PROTEÇÃO SIMPLES */
-
-    const autenticado =
-        sessionStorage.getItem(
-            "adminAutenticado"
-        );
-
-    if (
-        autenticado !== "true"
-    ) {
-
-        window.location.href =
-            "index.html";
-
+    if (!admin) {
+        await window.supabaseClient.auth.signOut();
+        window.location.href = "index.html";
         return;
     }
 
+    const itemForm = document.getElementById("itemForm");
+    const adminItems = document.getElementById("adminItems");
+    const logoutAdmin = document.getElementById("logoutAdmin");
+    const limparTodos = document.getElementById("limparTodos");
+    const participantsContainer =
+        document.getElementById("adminListaParticipantes");
 
-    const itemForm =
-        document.getElementById(
-            "itemForm"
+    itemForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const nome =
+            document.getElementById("itemNome").value.trim();
+
+        const descricao =
+            document.getElementById("itemDescricao").value.trim();
+
+        const quantidade =
+            Number(document.getElementById("itemQuantidade").value);
+
+        if (!nome || !Number.isInteger(quantidade) || quantidade <= 0) {
+            showToast("Preencha corretamente o nome e a quantidade.");
+            return;
+        }
+
+        const submitButton =
+            itemForm.querySelector('button[type="submit"]');
+
+        setButtonLoading(
+            submitButton,
+            true,
+            "+ Adicionar item",
+            "Salvando..."
         );
 
-    const adminItems =
-        document.getElementById(
-            "adminItems"
+        const { error } =
+            await window.supabaseClient
+                .from("itens")
+                .insert({
+                    nome,
+                    descricao: descricao || null,
+                    quantidade_necessaria: quantidade,
+                    ativo: true
+                });
+
+        setButtonLoading(
+            submitButton,
+            false,
+            "+ Adicionar item"
         );
 
-    const logoutAdmin =
-        document.getElementById(
-            "logoutAdmin"
-        );
-
-    const limparTodos =
-        document.getElementById(
-            "limparTodos"
-        );
-
-
-    /* CADASTRAR ITEM */
-
-    itemForm.addEventListener(
-        "submit",
-        (event) => {
-
-            event.preventDefault();
-
-            const nome =
-                document
-                    .getElementById(
-                        "itemNome"
-                    )
-                    .value
-                    .trim();
-
-            const descricao =
-                document
-                    .getElementById(
-                        "itemDescricao"
-                    )
-                    .value
-                    .trim();
-
-            const quantidade =
-                Number(
-                    document
-                        .getElementById(
-                            "itemQuantidade"
-                        )
-                        .value
-                );
-
-
-            if (
-                !nome ||
-                quantidade <= 0
-            ) {
-
-                showToast(
-                    "Preencha corretamente os dados do item."
-                );
-
-                return;
-            }
-
-
-            const items =
-                getItems();
-
-
-            const novoItem = {
-
-                id: createId(),
-
-                nome: nome,
-
-                descricao: descricao,
-
-                meta: quantidade,
-
-                doado: 0,
-
-                criadoEm:
-                    new Date().toISOString(),
-
-                doacoes: []
-            };
-
-
-            items.unshift(
-                novoItem
-            );
-
-
-            saveItems(items);
-
-
-            itemForm.reset();
-
-
-            renderAdmin();
-
-
+        if (error) {
             showToast(
-                "Item adicionado com sucesso!"
+                friendlyDatabaseError(
+                    error,
+                    "Não foi possível adicionar o item."
+                )
             );
-
+            return;
         }
-    );
 
+        itemForm.reset();
 
-    /* EXCLUIR ITEM */
+        await refreshAdminData();
 
-    adminItems.addEventListener(
-        "click",
-        (event) => {
+        showToast("Item adicionado e salvo no Supabase!");
+    });
 
-            const button =
-                event.target.closest(
-                    "[data-delete-item]"
-                );
+    adminItems?.addEventListener("click", async (event) => {
+        const button =
+            event.target.closest("[data-delete-item]");
 
-            if (!button) {
-                return;
-            }
-
-
-            const id =
-                button.dataset.deleteItem;
-
-
-            const items =
-                getItems();
-
-
-            const item =
-                items.find(
-                    item =>
-                        item.id === id
-                );
-
-
-            if (!item) {
-                return;
-            }
-
-
-            const confirmar =
-                confirm(
-                    `Deseja realmente excluir "${item.nome}"? Todas as doações registradas neste item também serão excluídas.`
-                );
-
-
-            if (!confirmar) {
-                return;
-            }
-
-
-            const novosItems =
-                items.filter(
-                    item =>
-                        item.id !== id
-                );
-
-
-            saveItems(
-                novosItems
-            );
-
-
-            renderAdmin();
-
-
-            showToast(
-                "Item excluído."
-            );
-
+        if (!button) {
+            return;
         }
-    );
 
-
-    /* LIMPAR TODOS */
-
-    limparTodos.addEventListener(
-        "click",
-        () => {
-
-            const items =
-                getItems();
-
-
-            if (
-                items.length === 0
-            ) {
-
-                showToast(
-                    "Não existem itens para excluir."
-                );
-
-                return;
-            }
-
-
-            const confirmar =
-                confirm(
-                    "Tem certeza que deseja apagar TODOS os itens e todas as doações?"
-                );
-
-
-            if (!confirmar) {
-                return;
-            }
-
-
-            localStorage.removeItem(
-                STORAGE_KEY
+        const item =
+            currentItems.find(
+                (value) => value.id === button.dataset.deleteItem
             );
 
-
-            renderAdmin();
-
-
-            showToast(
-                "Todos os dados foram removidos."
-            );
-
+        if (!item) {
+            return;
         }
-    );
 
-
-    /* LOGOUT */
-
-    logoutAdmin.addEventListener(
-        "click",
-        () => {
-
-            sessionStorage.removeItem(
-                "adminAutenticado"
+        const confirmed =
+            confirm(
+                `Excluir "${item.nome}"? ` +
+                "As doações ligadas a esse item também serão excluídas."
             );
 
-            window.location.href =
-                "index.html";
-
+        if (!confirmed) {
+            return;
         }
-    );
 
+        button.disabled = true;
 
-    renderAdmin();
+        const { error } =
+            await window.supabaseClient
+                .from("itens")
+                .delete()
+                .eq("id", item.id);
+
+        if (error) {
+            button.disabled = false;
+            showToast("Não foi possível excluir o item.");
+            console.error(error);
+            return;
+        }
+
+        await refreshAdminData();
+
+        showToast("Item excluído.");
+    });
+
+    participantsContainer?.addEventListener("click", async (event) => {
+        const button =
+            event.target.closest("[data-remove-participant]");
+
+        if (!button) {
+            return;
+        }
+
+        const participant =
+            currentParticipants.find(
+                (value) =>
+                    value.id === button.dataset.removeParticipant
+            );
+
+        if (!participant) {
+            return;
+        }
+
+        const confirmed =
+            confirm(
+                `Remover "${participant.nome}" da lista de participantes?`
+            );
+
+        if (!confirmed) {
+            return;
+        }
+
+        button.disabled = true;
+
+        const { error } =
+            await window.supabaseClient
+                .from("participantes")
+                .delete()
+                .eq("id", participant.id);
+
+        if (error) {
+            button.disabled = false;
+            showToast("Não foi possível excluir o participante.");
+            console.error(error);
+            return;
+        }
+
+        await refreshAdminData();
+
+        showToast("Participante removido.");
+    });
+
+    limparTodos?.addEventListener("click", async () => {
+        if (currentItems.length === 0) {
+            showToast("Não existem itens cadastrados.");
+            return;
+        }
+
+        const confirmed =
+            confirm(
+                "Tem certeza que deseja excluir TODOS os itens " +
+                "e todas as doações relacionadas?"
+            );
+
+        if (!confirmed) {
+            return;
+        }
+
+        const ids = currentItems.map((item) => item.id);
+
+        limparTodos.disabled = true;
+        limparTodos.textContent = "Excluindo...";
+
+        const { error } =
+            await window.supabaseClient
+                .from("itens")
+                .delete()
+                .in("id", ids);
+
+        limparTodos.disabled = false;
+        limparTodos.textContent = "Excluir todos os itens";
+
+        if (error) {
+            showToast("Não foi possível excluir todos os itens.");
+            console.error(error);
+            return;
+        }
+
+        await refreshAdminData();
+
+        showToast("Todos os itens e suas doações foram excluídos.");
+    });
+
+    logoutAdmin?.addEventListener("click", async () => {
+        await window.supabaseClient.auth.signOut();
+        window.location.href = "index.html";
+    });
+
+    await refreshAdminData();
+
+    startLiveUpdates("admin");
 }
 
 
-/* =========================================================
-   RENDER ADMIN
-========================================================= */
+async function refreshAdminData() {
+    const [items, participants] =
+        await Promise.all([
+            fetchItemsWithDonations(),
+            fetchParticipants()
+        ]);
 
-function renderAdmin() {
+    currentItems = items;
+    currentParticipants = participants;
 
-    const items =
-        getItems();
-
-
-    renderAdminStats(
-        items
-    );
-
-
-    renderAdminItems(
-        items
-    );
-
-
-    renderDonationHistory(
-        items
-    );
+    renderAdminStats(currentItems);
+    renderAdminItems(currentItems);
+    renderDonationHistory(currentItems);
+    renderParticipantsAdmin(currentParticipants);
 }
 
-
-/* =========================================================
-   ESTATÍSTICAS ADMIN
-========================================================= */
 
 function renderAdminStats(items) {
+    const totalItems = items.length;
 
-    const totalItens =
-        items.length;
-
-
-    const metaTotal =
+    const totalTarget =
         items.reduce(
-            (total, item) =>
-                total +
-                Number(item.meta || 0),
+            (sum, item) => sum + Number(item.meta || 0),
             0
         );
 
-
-    const totalDoado =
+    const totalDonated =
         items.reduce(
-            (total, item) =>
-                total +
-                Number(item.doado || 0),
+            (sum, item) => sum + Number(item.doado || 0),
             0
         );
 
-
-    const concluidos =
+    const completed =
         items.filter(
-            item =>
-                item.doado >=
-                item.meta
+            (item) =>
+                Number(item.doado) >= Number(item.meta)
         ).length;
 
-
-    document.getElementById(
-        "statItens"
-    ).textContent =
-        totalItens;
-
-
-    document.getElementById(
-        "statMeta"
-    ).textContent =
-        metaTotal;
-
-
-    document.getElementById(
-        "statDoado"
-    ).textContent =
-        totalDoado;
-
-
-    document.getElementById(
-        "statConcluidos"
-    ).textContent =
-        concluidos;
+    setText("statItens", totalItems);
+    setText("statMeta", totalTarget);
+    setText("statDoado", totalDonated);
+    setText("statConcluidos", completed);
 }
 
 
-/* =========================================================
-   CARDS ADMIN
-========================================================= */
+function setText(id, value) {
+    const element = document.getElementById(id);
+
+    if (element) {
+        element.textContent = value;
+    }
+}
+
 
 function renderAdminItems(items) {
-
-    const container =
-        document.getElementById(
-            "adminItems"
-        );
-
+    const container = document.getElementById("adminItems");
 
     if (!container) {
         return;
     }
 
-
-    if (
-        items.length === 0
-    ) {
-
-        container.innerHTML = `
-            <div class="empty-state">
-
-                <div class="empty-icon">
-                    📦
-                </div>
-
-                <h3>
-                    Nenhum item cadastrado
-                </h3>
-
-                <p>
-                    Utilize o formulário acima para adicionar o primeiro item da campanha.
-                </p>
-
-            </div>
-        `;
+    if (items.length === 0) {
+        container.innerHTML =
+            emptyStateHTML(
+                "📦",
+                "Nenhum item cadastrado",
+                "Use o formulário acima para cadastrar o primeiro item."
+            );
 
         return;
     }
 
-
     container.innerHTML =
-        items.map(
-            item =>
-                createAdminItemCard(
-                    item
-                )
-        ).join("");
+        items.map(createAdminItemCard).join("");
 }
 
 
-/* =========================================================
-   CRIAR CARD ADMIN
-========================================================= */
-
 function createAdminItemCard(item) {
+    const percentage = calculatePercentage(item);
+    const remaining = getRemaining(item);
+    const completed = remaining === 0;
 
-    const percentual =
-        calculatePercentage(item);
-
-
-    const restante =
-        getRemaining(item);
-
-
-    const concluido =
-        restante === 0;
-
-
-    const ultimosDoadores =
-        (item.doacoes || [])
-            .slice()
-            .reverse()
+    const lastDonors =
+        [...(item.doacoes || [])]
+            .sort(
+                (a, b) =>
+                    new Date(b.data) - new Date(a.data)
+            )
             .slice(0, 3);
 
+    const donorHTML =
+        lastDonors.length
+            ? `
+                <div class="donors-preview">
+                    <p class="donors-preview-title">
+                        ÚLTIMOS DOADORES
+                    </p>
 
-    let doadoresHTML = "";
+                    ${lastDonors
+                        .map(
+                            (donation) => `
+                                <div class="donor-mini">
+                                    <span>
+                                        ${escapeHTML(donation.nome)}
+                                    </span>
 
-
-    if (
-        ultimosDoadores.length > 0
-    ) {
-
-        doadoresHTML = `
-
-            <div class="donors-preview">
-
-                <p class="donors-preview-title">
-                    ÚLTIMOS DOADORES
-                </p>
-
-                ${ultimosDoadores
-                    .map(
-                        doacao => `
-
-                            <div class="donor-mini">
-
-                                <span>
-                                    ${escapeHTML(
-                                        doacao.nome
-                                    )}
-                                </span>
-
-                                <strong>
-                                    +${doacao.quantidade}
-                                </strong>
-
-                            </div>
-
-                        `
-                    )
-                    .join("")}
-
-            </div>
-        `;
-    }
-
+                                    <strong>
+                                        +${donation.quantidade}
+                                    </strong>
+                                </div>
+                            `
+                        )
+                        .join("")}
+                </div>
+            `
+            : "";
 
     return `
-
-        <article
-            class="item-card
-            ${concluido ? "completed" : ""}"
-        >
-
+        <article class="item-card ${completed ? "completed" : ""}">
             <div class="item-top">
+                <div class="item-icon">📦</div>
 
-                <div class="item-icon">
-                    📦
-                </div>
-
-                <span
-                    class="item-status
-                    ${concluido
-                        ? "completed-status"
-                        : ""}"
-                >
-
-                    ${concluido
-                        ? "META ATINGIDA"
-                        : "EM ANDAMENTO"}
-
+                <span class="item-status ${completed ? "completed-status" : ""}">
+                    ${completed ? "META ATINGIDA" : "EM ANDAMENTO"}
                 </span>
-
             </div>
 
-
-            <h3>
-                ${escapeHTML(item.nome)}
-            </h3>
-
+            <h3>${escapeHTML(item.nome)}</h3>
 
             <p class="item-description">
-
                 ${
-                    escapeHTML(
-                        item.descricao
-                    ) ||
-                    "Item necessário para nossa campanha."
+                    escapeHTML(item.descricao) ||
+                    "Item necessário para o Acampamento RENOVO."
                 }
-
             </p>
 
-
             <div class="progress-info">
-
-                <span>
-                    Progresso
-                </span>
-
-                <strong>
-                    ${percentual}%
-                </strong>
-
+                <span>Progresso</span>
+                <strong>${percentage}%</strong>
             </div>
-
 
             <div class="progress-track">
-
                 <div
                     class="progress-bar"
-                    style="
-                        width:
-                        ${percentual}%
-                    "
-                >
-                </div>
-
+                    style="width: ${percentage}%"
+                ></div>
             </div>
-
 
             <div class="item-numbers">
-
                 <div class="item-number">
-
-                    <span>
-                        META
-                    </span>
-
-                    <strong>
-                        ${item.meta}
-                    </strong>
-
+                    <span>META</span>
+                    <strong>${item.meta}</strong>
                 </div>
 
-
                 <div class="item-number">
-
-                    <span>
-                        DOADO
-                    </span>
-
-                    <strong>
-                        ${item.doado}
-                    </strong>
-
+                    <span>DOADO</span>
+                    <strong>${item.doado}</strong>
                 </div>
 
-
                 <div class="item-number">
-
-                    <span>
-                        FALTAM
-                    </span>
-
-                    <strong>
-                        ${restante}
-                    </strong>
-
+                    <span>FALTAM</span>
+                    <strong>${remaining}</strong>
                 </div>
-
             </div>
 
+            ${donorHTML}
 
-            ${doadoresHTML}
-
-
-            <div
-                class="item-actions"
-                style="margin-top: 16px;"
-            >
-
+            <div class="item-actions">
                 <button
                     class="danger-outline-button"
                     data-delete-item="${item.id}"
                 >
                     Excluir item
                 </button>
-
             </div>
-
         </article>
     `;
 }
 
 
-/* =========================================================
-   HISTÓRICO ADMIN
-========================================================= */
-
 function renderDonationHistory(items) {
-
     const container =
-        document.getElementById(
-            "donationHistory"
-        );
-
+        document.getElementById("donationHistory");
 
     if (!container) {
         return;
     }
 
+    const history = [];
 
-    const historico = [];
-
-
-    items.forEach(
-        item => {
-
-            (item.doacoes || [])
-                .forEach(
-                    doacao => {
-
-                        historico.push({
-
-                            ...doacao,
-
-                            itemNome:
-                                item.nome
-                        });
-
-                    }
-                );
-
+    for (const item of items) {
+        for (const donation of item.doacoes || []) {
+            history.push({
+                ...donation,
+                itemNome: item.nome
+            });
         }
-    );
+    }
 
-
-    historico.sort(
+    history.sort(
         (a, b) =>
-            new Date(b.data) -
-            new Date(a.data)
+            new Date(b.data) - new Date(a.data)
     );
 
-
-    if (
-        historico.length === 0
-    ) {
-
-        container.innerHTML = `
-
-            <div class="empty-state">
-
-                <div class="empty-icon">
-                    ❤
-                </div>
-
-                <h3>
-                    Nenhuma doação ainda
-                </h3>
-
-                <p>
-                    Quando alguém registrar uma doação ela aparecerá aqui.
-                </p>
-
-            </div>
-        `;
+    if (history.length === 0) {
+        container.innerHTML =
+            emptyStateHTML(
+                "♡",
+                "Nenhuma doação ainda",
+                "Quando uma doação for registrada, ela aparecerá aqui."
+            );
 
         return;
     }
 
-
     container.innerHTML =
-        historico
-            .slice(0, 30)
-            .map(
-                doacao => {
+        history
+            .slice(0, 50)
+            .map((donation) => {
+                const initial =
+                    escapeHTML(
+                        donation.nome
+                            .charAt(0)
+                            .toUpperCase()
+                    );
 
-                    const inicial =
-                        escapeHTML(
-                            doacao.nome
-                                .charAt(0)
-                                .toUpperCase()
-                        );
-
-
-                    return `
-
-                        <div class="history-row">
-
-                            <div class="history-avatar">
-                                ${inicial}
-                            </div>
-
-                            <div class="history-person">
-
-                                <strong>
-                                    ${escapeHTML(
-                                        doacao.nome
-                                    )}
-                                </strong>
-
-                                <span>
-                                    ${formatDate(
-                                        doacao.data
-                                    )}
-                                </span>
-
-                            </div>
-
-                            <div class="history-item">
-                                ${escapeHTML(
-                                    doacao.itemNome
-                                )}
-                            </div>
-
-                            <span class="history-quantity">
-                                +${doacao.quantidade}
-                            </span>
-
+                return `
+                    <div class="history-row">
+                        <div class="history-avatar">
+                            ${initial}
                         </div>
 
-                    `;
+                        <div class="history-person">
+                            <strong>
+                                ${escapeHTML(donation.nome)}
+                            </strong>
 
-                }
+                            <span>
+                                ${formatDate(donation.data)}
+                            </span>
+                        </div>
+
+                        <div class="history-item">
+                            ${escapeHTML(donation.itemNome)}
+                        </div>
+
+                        <span class="history-quantity">
+                            +${donation.quantidade}
+                        </span>
+                    </div>
+                `;
+            })
+            .join("");
+}
+
+
+function renderParticipantsAdmin(participants) {
+    const container =
+        document.getElementById("adminListaParticipantes");
+
+    const total =
+        document.getElementById("adminTotalParticipantes");
+
+    if (!container || !total) {
+        return;
+    }
+
+    total.textContent = participants.length;
+
+    if (participants.length === 0) {
+        container.innerHTML =
+            emptyStateHTML(
+                "👥",
+                "Nenhum participante confirmado",
+                "Os nomes adicionados na página pública aparecerão aqui."
+            );
+
+        return;
+    }
+
+    container.innerHTML =
+        participants
+            .map(
+                (participant, index) => `
+                    <div class="admin-participante-row">
+                        <div class="admin-participante-numero">
+                            ${index + 1}
+                        </div>
+
+                        <div class="admin-participante-info">
+                            <strong>
+                                ${escapeHTML(participant.nome)}
+                            </strong>
+
+                            <span>
+                                Confirmado em
+                                ${formatDate(participant.data)}
+                            </span>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="remover-participante"
+                            data-remove-participant="${participant.id}"
+                        >
+                            Excluir
+                        </button>
+                    </div>
+                `
             )
             .join("");
 }
 
 
 /* =========================================================
-   USUÁRIO
+   PÁGINA PÚBLICA
 ========================================================= */
 
-function initUser() {
-
+async function initUser() {
     const searchInput =
-        document.getElementById(
-            "searchItem"
-        );
+        document.getElementById("searchItem");
 
     const userItems =
-        document.getElementById(
-            "userItems"
-        );
+        document.getElementById("userItems");
 
     const modal =
-        document.getElementById(
-            "donationModal"
-        );
+        document.getElementById("donationModal");
 
-    const closeModal =
-        document.getElementById(
-            "closeDonationModal"
-        );
+    const closeModalButton =
+        document.getElementById("closeDonationModal");
 
     const donationForm =
-        document.getElementById(
-            "donationForm"
-        );
+        document.getElementById("donationForm");
 
+    const participantForm =
+        document.getElementById("participanteForm");
 
-    /* PESQUISA */
+    searchInput?.addEventListener("input", () => {
+        renderUserItemsFiltered(searchInput.value);
+    });
 
-    searchInput.addEventListener(
-        "input",
-        () => {
+    userItems?.addEventListener("click", (event) => {
+        const button =
+            event.target.closest("[data-donate-item]");
 
-            renderUser(
-                searchInput.value
-            );
-
+        if (!button) {
+            return;
         }
-    );
 
+        openDonationModal(button.dataset.donateItem);
+    });
 
-    /* ABRIR MODAL */
-
-    userItems.addEventListener(
-        "click",
-        (event) => {
-
-            const button =
-                event.target.closest(
-                    "[data-donate-item]"
-                );
-
-            if (!button) {
-                return;
-            }
-
-
-            openDonationModal(
-                button.dataset.donateItem
-            );
-
-        }
-    );
-
-
-    /* FECHAR MODAL */
-
-    closeModal.addEventListener(
+    closeModalButton?.addEventListener(
         "click",
         closeDonationModal
     );
 
-
-    modal.addEventListener(
-        "click",
-        (event) => {
-
-            if (
-                event.target === modal
-            ) {
-
-                closeDonationModal();
-            }
-
+    modal?.addEventListener("click", (event) => {
+        if (event.target === modal) {
+            closeDonationModal();
         }
-    );
+    });
 
-
-    document.addEventListener(
-        "keydown",
-        (event) => {
-
-            if (
-                event.key === "Escape"
-            ) {
-
-                closeDonationModal();
-            }
-
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            closeDonationModal();
         }
-    );
+    });
 
-
-    /* REGISTRAR DOAÇÃO */
-
-    donationForm.addEventListener(
+    donationForm?.addEventListener(
         "submit",
         registerDonation
     );
 
+    participantForm?.addEventListener(
+        "submit",
+        addParticipant
+    );
 
-    renderUser();
+    await refreshUserData();
+
+    startLiveUpdates("user");
 }
 
 
-/* =========================================================
-   RENDER USUÁRIO
-========================================================= */
+async function refreshUserData() {
+    const [items, participants] =
+        await Promise.all([
+            fetchItemsWithDonations(),
+            fetchParticipants()
+        ]);
 
-function renderUser(search = "") {
+    currentItems = items;
+    currentParticipants = participants;
 
-    const items =
-        getItems();
+    renderUserStats(currentItems);
 
+    const search =
+        document.getElementById("searchItem")?.value || "";
 
-    renderUserStats(
-        items
-    );
+    renderUserItemsFiltered(search);
 
-
-    let filteredItems =
-        items;
-
-
-    if (
-        search.trim()
-    ) {
-
-        const termo =
-            search
-                .trim()
-                .toLowerCase();
-
-
-        filteredItems =
-            items.filter(
-                item =>
-
-                    item.nome
-                        .toLowerCase()
-                        .includes(termo)
-
-                    ||
-
-                    (
-                        item.descricao || ""
-                    )
-                        .toLowerCase()
-                        .includes(termo)
-            );
-    }
-
-
-    renderUserItems(
-        filteredItems
-    );
+    renderParticipantsUser(currentParticipants);
 }
 
-
-/* =========================================================
-   ESTATÍSTICAS USUÁRIO
-========================================================= */
 
 function renderUserStats(items) {
-
-    const meta =
+    const totalTarget =
         items.reduce(
-            (total, item) =>
-                total +
-                Number(item.meta || 0),
+            (sum, item) => sum + Number(item.meta || 0),
             0
         );
 
-
-    const doado =
+    const totalDonated =
         items.reduce(
-            (total, item) =>
-                total +
-                Number(item.doado || 0),
+            (sum, item) => sum + Number(item.doado || 0),
             0
         );
 
-
-    const concluidos =
+    const completed =
         items.filter(
-            item =>
-                item.doado >=
-                item.meta
+            (item) =>
+                Number(item.doado) >= Number(item.meta)
         ).length;
 
-
-    document.getElementById(
-        "userStatItens"
-    ).textContent =
-        items.length;
-
-
-    document.getElementById(
-        "userStatMeta"
-    ).textContent =
-        meta;
-
-
-    document.getElementById(
-        "userStatDoado"
-    ).textContent =
-        doado;
-
-
-    document.getElementById(
-        "userStatConcluidos"
-    ).textContent =
-        concluidos;
+    setText("userStatItens", items.length);
+    setText("userStatMeta", totalTarget);
+    setText("userStatDoado", totalDonated);
+    setText("userStatConcluidos", completed);
 }
 
 
-/* =========================================================
-   CARDS USUÁRIO
-========================================================= */
+function renderUserItemsFiltered(search = "") {
+    const term = search.trim().toLowerCase();
+
+    const filtered =
+        !term
+            ? currentItems
+            : currentItems.filter(
+                (item) =>
+                    item.nome.toLowerCase().includes(term) ||
+                    (item.descricao || "")
+                        .toLowerCase()
+                        .includes(term)
+            );
+
+    renderUserItems(filtered);
+}
+
 
 function renderUserItems(items) {
-
     const container =
-        document.getElementById(
-            "userItems"
-        );
-
+        document.getElementById("userItems");
 
     if (!container) {
         return;
     }
 
-
-    if (
-        items.length === 0
-    ) {
-
-        container.innerHTML = `
-
-            <div class="empty-state">
-
-                <div class="empty-icon">
-                    🔎
-                </div>
-
-                <h3>
-                    Nenhum item encontrado
-                </h3>
-
-                <p>
-                    No momento não encontramos itens disponíveis com essa pesquisa.
-                </p>
-
-            </div>
-        `;
+    if (items.length === 0) {
+        container.innerHTML =
+            emptyStateHTML(
+                "🔎",
+                "Nenhum item encontrado",
+                "Não encontramos itens disponíveis com essa pesquisa."
+            );
 
         return;
     }
 
-
     container.innerHTML =
-        items.map(
-            item =>
-                createUserItemCard(
-                    item
-                )
-        ).join("");
+        items.map(createUserItemCard).join("");
 }
 
 
-/* =========================================================
-   CRIAR CARD DO USUÁRIO
-========================================================= */
-
 function createUserItemCard(item) {
+    const percentage = calculatePercentage(item);
+    const remaining = getRemaining(item);
+    const completed = remaining === 0;
 
-    const percentual =
-        calculatePercentage(item);
-
-
-    const restante =
-        getRemaining(item);
-
-
-    const concluido =
-        restante === 0;
-
-
-    const ultimosDoadores =
-        (item.doacoes || [])
-            .slice()
-            .reverse()
+    const lastDonors =
+        [...(item.doacoes || [])]
+            .sort(
+                (a, b) =>
+                    new Date(b.data) - new Date(a.data)
+            )
             .slice(0, 3);
 
+    const donorHTML =
+        lastDonors.length
+            ? `
+                <div class="donors-preview">
+                    <p class="donors-preview-title">
+                        PESSOAS QUE JÁ AJUDARAM
+                    </p>
 
-    let doadoresHTML = "";
+                    ${lastDonors
+                        .map(
+                            (donation) => `
+                                <div class="donor-mini">
+                                    <span>
+                                        ♡ ${escapeHTML(donation.nome)}
+                                    </span>
 
-
-    if (
-        ultimosDoadores.length
-    ) {
-
-        doadoresHTML = `
-
-            <div class="donors-preview">
-
-                <p class="donors-preview-title">
-                    PESSOAS QUE JÁ AJUDARAM
-                </p>
-
-                ${ultimosDoadores
-                    .map(
-                        doacao => `
-
-                        <div class="donor-mini">
-
-                            <span>
-                                ❤
-                                ${escapeHTML(
-                                    doacao.nome
-                                )}
-                            </span>
-
-                            <strong>
-                                ${doacao.quantidade}
-                            </strong>
-
-                        </div>
-
-                        `
-                    )
-                    .join("")}
-
-            </div>
-
-        `;
-    }
-
+                                    <strong>
+                                        ${donation.quantidade}
+                                    </strong>
+                                </div>
+                            `
+                        )
+                        .join("")}
+                </div>
+            `
+            : "";
 
     return `
-
-        <article
-            class="item-card
-            ${concluido ? "completed" : ""}"
-        >
-
+        <article class="item-card ${completed ? "completed" : ""}">
             <div class="item-top">
+                <div class="item-icon">📦</div>
 
-                <div class="item-icon">
-                    📦
-                </div>
-
-                <span
-                    class="item-status
-                    ${
-                        concluido
-                            ? "completed-status"
-                            : ""
-                    }"
-                >
-
-                    ${
-                        concluido
-                            ? "META ATINGIDA"
-                            : "PRECISAMOS"
-                    }
-
+                <span class="item-status ${completed ? "completed-status" : ""}">
+                    ${completed ? "META ATINGIDA" : "PRECISAMOS"}
                 </span>
-
             </div>
 
-
-            <h3>
-                ${escapeHTML(
-                    item.nome
-                )}
-            </h3>
-
+            <h3>${escapeHTML(item.nome)}</h3>
 
             <p class="item-description">
-
                 ${
-                    escapeHTML(
-                        item.descricao
-                    )
-
-                    ||
-
+                    escapeHTML(item.descricao) ||
                     "Ajude-nos contribuindo com este item."
                 }
-
             </p>
 
-
             <div class="progress-info">
-
                 <span>
                     ${
-                        concluido
+                        completed
                             ? "Meta concluída"
-                            : `${restante} ainda necessário(s)`
+                            : `${remaining} ainda necessário(s)`
                     }
                 </span>
 
-                <strong>
-                    ${percentual}%
-                </strong>
-
+                <strong>${percentage}%</strong>
             </div>
-
 
             <div class="progress-track">
-
                 <div
                     class="progress-bar"
-                    style="
-                        width:
-                        ${percentual}%;
-                    "
-                >
-                </div>
-
+                    style="width: ${percentage}%"
+                ></div>
             </div>
-
 
             <div class="item-numbers">
-
                 <div class="item-number">
-
-                    <span>
-                        META
-                    </span>
-
-                    <strong>
-                        ${item.meta}
-                    </strong>
-
+                    <span>META</span>
+                    <strong>${item.meta}</strong>
                 </div>
 
-
                 <div class="item-number">
-
-                    <span>
-                        DOADO
-                    </span>
-
-                    <strong>
-                        ${item.doado}
-                    </strong>
-
+                    <span>DOADO</span>
+                    <strong>${item.doado}</strong>
                 </div>
 
-
                 <div class="item-number">
-
-                    <span>
-                        FALTAM
-                    </span>
-
-                    <strong>
-                        ${restante}
-                    </strong>
-
+                    <span>FALTAM</span>
+                    <strong>${remaining}</strong>
                 </div>
-
             </div>
-
 
             <button
                 class="primary-button full-button"
                 data-donate-item="${item.id}"
-                ${concluido ? "disabled" : ""}
+                ${completed ? "disabled" : ""}
             >
-
                 ${
-                    concluido
+                    completed
                         ? "✓ Meta atingida"
-                        : "❤ Quero doar"
+                        : "♡ Quero doar"
                 }
-
             </button>
 
-
-            ${doadoresHTML}
-
+            ${donorHTML}
         </article>
     `;
 }
 
 
-/* =========================================================
-   ABRIR MODAL DE DOAÇÃO
-========================================================= */
-
 function openDonationModal(itemId) {
-
-    const items =
-        getItems();
-
-
     const item =
-        items.find(
-            item =>
-                item.id === itemId
+        currentItems.find(
+            (value) => value.id === itemId
         );
-
 
     if (!item) {
         return;
     }
 
+    const remaining = getRemaining(item);
 
-    const restante =
-        getRemaining(item);
-
-
-    if (
-        restante <= 0
-    ) {
-
-        showToast(
-            "A meta deste item já foi atingida. Obrigado!"
-        );
-
+    if (remaining <= 0) {
+        showToast("A meta deste item já foi atingida. Obrigado!");
         return;
     }
 
+    const idInput =
+        document.getElementById("donationItemId");
 
-    document.getElementById(
-        "donationItemId"
-    ).value =
-        item.id;
+    const info =
+        document.getElementById("selectedItemInfo");
 
+    const quantityInput =
+        document.getElementById("donorQuantity");
 
-    document.getElementById(
-        "selectedItemInfo"
-    ).innerHTML = `
+    const quantityHelp =
+        document.getElementById("quantityHelp");
 
-        <strong>
-            📦 ${escapeHTML(item.nome)}
-        </strong>
+    const error =
+        document.getElementById("donationError");
 
+    idInput.value = item.id;
+
+    info.innerHTML = `
+        <strong>📦 ${escapeHTML(item.nome)}</strong>
         <span>
             Ainda precisamos de
-            <b>${restante}</b>
+            <b>${remaining}</b>
             unidade(s).
         </span>
-
     `;
 
+    quantityInput.max = remaining;
 
-    const quantidadeInput =
-        document.getElementById(
-            "donorQuantity"
-        );
+    quantityHelp.textContent =
+        `Quantidade máxima necessária: ${remaining}.`;
 
+    error.textContent = "";
 
-    quantidadeInput.max =
-        restante;
+    document
+        .getElementById("donationModal")
+        .classList.add("show");
 
+    document.body.style.overflow = "hidden";
 
-    document.getElementById(
-        "quantityHelp"
-    ).textContent =
-        `Quantidade máxima necessária: ${restante}.`;
-
-
-    document.getElementById(
-        "donationError"
-    ).textContent = "";
-
-
-    document.getElementById(
-        "donationModal"
-    ).classList.add(
-        "show"
-    );
-
-
-    document.body.style.overflow =
-        "hidden";
-
-
-    setTimeout(
-        () => {
-
-            document.getElementById(
-                "donorName"
-            ).focus();
-
-        },
-        100
-    );
+    setTimeout(() => {
+        document.getElementById("donorName")?.focus();
+    }, 100);
 }
 
 
-/* =========================================================
-   FECHAR MODAL
-========================================================= */
-
 function closeDonationModal() {
-
     const modal =
-        document.getElementById(
-            "donationModal"
-        );
+        document.getElementById("donationModal");
 
+    const form =
+        document.getElementById("donationForm");
+
+    const error =
+        document.getElementById("donationError");
 
     if (!modal) {
         return;
     }
 
+    modal.classList.remove("show");
+    document.body.style.overflow = "";
 
-    modal.classList.remove(
-        "show"
-    );
-
-
-    document.body.style.overflow =
-        "";
-
-
-    const form =
-        document.getElementById(
-            "donationForm"
-        );
-
-
-    if (form) {
-        form.reset();
-    }
-
-
-    const error =
-        document.getElementById(
-            "donationError"
-        );
-
+    form?.reset();
 
     if (error) {
         error.textContent = "";
@@ -1755,172 +1357,236 @@ function closeDonationModal() {
 }
 
 
-/* =========================================================
-   REGISTRAR DOAÇÃO
-========================================================= */
-
-function registerDonation(event) {
-
+async function registerDonation(event) {
     event.preventDefault();
 
-
     const itemId =
-        document.getElementById(
-            "donationItemId"
-        ).value;
+        document.getElementById("donationItemId").value;
 
+    const name =
+        document.getElementById("donorName").value.trim();
 
-    const nome =
-        document.getElementById(
-            "donorName"
-        )
-            .value
-            .trim();
+    const quantity =
+        Number(document.getElementById("donorQuantity").value);
 
+    const errorElement =
+        document.getElementById("donationError");
 
-    const quantidade =
-        Number(
-            document.getElementById(
-                "donorQuantity"
-            ).value
-        );
+    const submitButton =
+        event.currentTarget.querySelector('button[type="submit"]');
 
+    errorElement.textContent = "";
 
-    const error =
-        document.getElementById(
-            "donationError"
-        );
-
-
-    error.textContent = "";
-
-
-    if (!nome) {
-
-        error.textContent =
-            "Informe seu nome.";
-
+    if (name.length < 2) {
+        errorElement.textContent = "Informe um nome válido.";
         return;
     }
 
-
-    if (
-        !Number.isInteger(
-            quantidade
-        )
-        ||
-        quantidade <= 0
-    ) {
-
-        error.textContent =
-            "Informe uma quantidade válida.";
-
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+        errorElement.textContent = "Informe uma quantidade válida.";
         return;
     }
-
-
-    const items =
-        getItems();
-
-
-    const itemIndex =
-        items.findIndex(
-            item =>
-                item.id === itemId
-        );
-
-
-    if (
-        itemIndex === -1
-    ) {
-
-        error.textContent =
-            "Este item não foi encontrado.";
-
-        return;
-    }
-
 
     const item =
-        items[itemIndex];
+        currentItems.find(
+            (value) => value.id === itemId
+        );
 
+    if (!item) {
+        errorElement.textContent = "Este item não foi encontrado.";
+        return;
+    }
 
-    const restante =
-        getRemaining(item);
+    const remaining = getRemaining(item);
 
-
-    if (
-        quantidade >
-        restante
-    ) {
-
-        error.textContent =
-            `Ainda precisamos somente de ${restante} unidade(s).`;
+    if (quantity > remaining) {
+        errorElement.textContent =
+            `No momento faltam somente ${remaining} unidade(s).`;
 
         return;
     }
 
+    setButtonLoading(
+        submitButton,
+        true,
+        "♡ Confirmar minha doação",
+        "Registrando..."
+    );
 
-    const novaDoacao = {
+    const { error } =
+        await window.supabaseClient
+            .from("doacoes")
+            .insert({
+                item_id: itemId,
+                nome_doador: name,
+                quantidade: quantity
+            });
 
-        id: createId(),
+    setButtonLoading(
+        submitButton,
+        false,
+        "♡ Confirmar minha doação"
+    );
 
-        nome: nome,
+    if (error) {
+        errorElement.textContent =
+            friendlyDatabaseError(
+                error,
+                "Não foi possível registrar a doação. Atualize a página e tente novamente."
+            );
 
-        quantidade: quantidade,
-
-        data:
-            new Date().toISOString()
-    };
-
-
-    if (
-        !Array.isArray(
-            item.doacoes
-        )
-    ) {
-
-        item.doacoes = [];
+        return;
     }
-
-
-    item.doacoes.push(
-        novaDoacao
-    );
-
-
-    item.doado =
-        Number(
-            item.doado || 0
-        )
-        +
-        quantidade;
-
-
-    items[itemIndex] =
-        item;
-
-
-    saveItems(
-        items
-    );
-
 
     closeDonationModal();
 
-
-    const search =
-        document.getElementById(
-            "searchItem"
-        ).value;
-
-
-    renderUser(
-        search
-    );
-
+    await refreshUserData();
 
     showToast(
-        `Obrigado, ${nome}! Sua doação de ${quantidade} unidade(s) foi registrada. ❤`
+        `Obrigado, ${name}! Sua doação de ${quantity} unidade(s) foi registrada. ♡`
     );
+}
+
+
+/* =========================================================
+   PARTICIPANTES
+========================================================= */
+
+async function addParticipant(event) {
+    event.preventDefault();
+
+    const input =
+        document.getElementById("participanteNome");
+
+    const errorElement =
+        document.getElementById("participanteErro");
+
+    const button =
+        event.currentTarget.querySelector('button[type="submit"]');
+
+    const name = input.value.trim();
+
+    errorElement.textContent = "";
+
+    if (name.length < 2) {
+        errorElement.textContent = "Digite um nome válido.";
+        return;
+    }
+
+    setButtonLoading(
+        button,
+        true,
+        "+ Adicionar à lista",
+        "Adicionando..."
+    );
+
+    const { error } =
+        await window.supabaseClient
+            .from("participantes")
+            .insert({
+                nome: name
+            });
+
+    setButtonLoading(
+        button,
+        false,
+        "+ Adicionar à lista"
+    );
+
+    if (error) {
+        errorElement.textContent =
+            friendlyDatabaseError(
+                error,
+                "Não foi possível adicionar o participante."
+            );
+
+        return;
+    }
+
+    input.value = "";
+
+    await refreshUserData();
+
+    showToast(
+        `${name} foi adicionado à lista do Acampamento RENOVO!`
+    );
+
+    input.focus();
+}
+
+
+function renderParticipantsUser(participants) {
+    const container =
+        document.getElementById("listaParticipantes");
+
+    const total =
+        document.getElementById("totalParticipantes");
+
+    if (!container || !total) {
+        return;
+    }
+
+    total.textContent = participants.length;
+
+    if (participants.length === 0) {
+        container.innerHTML =
+            emptyStateHTML(
+                "🙋",
+                "Nenhum participante ainda",
+                "Seja o primeiro a confirmar presença no Acampamento RENOVO!"
+            );
+
+        return;
+    }
+
+    container.innerHTML =
+        participants
+            .map((participant, index) => {
+                const initial =
+                    escapeHTML(
+                        participant.nome
+                            .charAt(0)
+                            .toUpperCase()
+                    );
+
+                return `
+                    <div class="participante-row">
+                        <div class="participante-numero">
+                            ${index + 1}
+                        </div>
+
+                        <div class="participante-avatar">
+                            ${initial}
+                        </div>
+
+                        <div class="participante-info">
+                            <strong>
+                                ${escapeHTML(participant.nome)}
+                            </strong>
+
+                            <span>
+                                Presença confirmada
+                            </span>
+                        </div>
+                    </div>
+                `;
+            })
+            .join("");
+}
+
+
+/* =========================================================
+   COMPONENTES
+========================================================= */
+
+function emptyStateHTML(icon, title, description) {
+    return `
+        <div class="empty-state">
+            <div class="empty-icon">${icon}</div>
+
+            <h3>${escapeHTML(title)}</h3>
+
+            <p>${escapeHTML(description)}</p>
+        </div>
+    `;
 }
