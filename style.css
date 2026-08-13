@@ -1773,3 +1773,115 @@ small {
         min-height: 155px;
     }
 }
+
+
+/* =========================================================
+   SENHA / CONTA
+========================================================= */
+
+.forgot-password-button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px 14px;
+    border: none;
+    background: transparent;
+    color: var(--primary);
+    font-weight: 750;
+    font-size: 13px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+
+.forgot-password-button:hover:not(:disabled) {
+    color: var(--red);
+}
+
+
+.forgot-password-button:disabled {
+    color: var(--muted);
+}
+
+
+.account-user-info {
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--primary-light);
+}
+
+
+.account-user-info span,
+.account-user-info strong {
+    display: block;
+}
+
+
+.account-user-info span {
+    margin-bottom: 3px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+
+.account-user-info strong {
+    color: var(--primary);
+    font-size: 14px;
+}
+
+
+.password-reset-card {
+    max-width: 560px;
+    text-align: left;
+}
+
+
+.password-reset-card .brand-icon,
+.password-reset-card > .eyebrow,
+.password-reset-card > h1,
+.password-reset-card > .login-description {
+    text-align: center;
+}
+
+
+.password-reset-card > .eyebrow {
+    display: block;
+}
+
+
+.password-reset-card > h1 {
+    color: var(--primary);
+}
+
+
+.reset-status {
+    margin-bottom: 18px;
+    padding: 14px 16px;
+    border-left: 4px solid var(--primary);
+    border-radius: 10px;
+    background: #f1f6f3;
+    color: var(--primary);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+
+.hidden-form {
+    display: none;
+}
+
+
+.back-login-link {
+    display: block;
+    margin-top: 22px;
+    color: var(--primary);
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+.back-login-link:hover {
+    text-decoration: underline;
+}
