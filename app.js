@@ -847,22 +847,23 @@ async function initAdmin() {
         );
 
         if (error) {
-            if (TEST_ADMIN_MODE && adminTeste) {
-                showToast(
-                    "O painel abriu no modo de teste, mas o Supabase bloqueou o cadastro porque não existe uma sessão real de administrador."
-                );
-            } else {
-                showToast(
-                    friendlyDatabaseError(
-                        error,
-                        "Não foi possível adicionar o item."
-                    )
-                );
-            }
-
-            console.error(error);
-            return;
-        }
+      
+             console.error(
+                 "ERRO REAL AO CADASTRAR ITEM:",
+                 error
+             );
+         
+             showToast(
+                 "Erro: " +
+                 (
+                     error.message ||
+                     error.code ||
+                     "Não foi possível cadastrar o item."
+                 )
+             );
+         
+             return;
+         }
 
         itemForm.reset();
 
